@@ -1,0 +1,23 @@
+interface：
+
+all：
+curl --location --request POST 'https://www.nyse.com/api/quotes/filter' --header 'Content-Type: application/json' --data-raw '{"sortColumn":"NORMALIZED_TICKER","pageNumber":1,"maxResultsPerPage":100,"sortOrder":"ASC"}'
+原网站：
+https://www.nyse.com/listings_directory/stock
+
+
+option chain：
+etf：
+https://api.nasdaq.com/api/quote/SPY/option-chain?assetclass=etf&limit=60&fromdate=2022-04-18&todate=2022-04-29&excode=oprac&callput=callput&money=at&type=week
+stock：
+https://api.nasdaq.com/api/quote/TSLA/option-chain?assetclass=stocks&limit=60&fromdate=2022-04-22&todate=2022-04-29&excode=oprac&callput=callput&money=at&type=all
+https://api.nasdaq.com/api/quote/TSLA/option-chain?assetclass=stocks&limit=60&offset=60&fromdate=2022-04-22&todate=2022-04-29&excode=oprac&callput=callput&money=at&type=all
+原网址：
+https://www.nasdaq.com/market-activity/stocks/tsla/option-chain
+
+yahoo
+https://finance.yahoo.com/quote/SPY/options?straddle=false
+接口：
+https://query2.finance.yahoo.com/v7/finance/options/spy?formatted=true&crumb=vfl3yRoKaKQ&lang=en-US&region=US&date=1653004800&corsDomain=finance.yahoo.com
+
+
