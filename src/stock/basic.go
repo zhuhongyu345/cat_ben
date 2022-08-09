@@ -16,6 +16,9 @@ func flushBasic() {
 	for _, stock := range stocks {
 		pe, yield, chn, price, h52, l52, liangbi, shizhi, huanshoulv := getDetailFromXQ(stock.Name)
 		hl := (price - l52) / (h52 - l52)
+		if h52 == l52 {
+			hl = 1
+		}
 		hl = math.Round(hl*10000) / 10000
 		err := db.UpdateByID(stock.ID, pe, yield, chn, price, h52, l52, hl, liangbi, shizhi, huanshoulv)
 		if err != nil {
