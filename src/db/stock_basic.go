@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 )
@@ -38,7 +39,7 @@ func GetAllStockFromDB() ([]*Sto, error) {
 	return resp, err
 }
 
-func Search(hlLow, hlHigh, pe, yield, priceLow, priceHigh, liangbi, tpe string) ([]*Sto, error) {
+func Search(hlLow, hlHigh, pe, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
 	if dbLite == nil {
 		InitDb()
 	}
@@ -84,6 +85,22 @@ func Search(hlLow, hlHigh, pe, yield, priceLow, priceHigh, liangbi, tpe string) 
 		if float, err := strconv.ParseFloat(priceHigh, 64); err == nil {
 			db = db.Where("price<=?", float)
 		}
+	}
+
+	if sort != "" {
+		if sortType == "desc" {
+			db = db.Order(fmt.Sprintf("%s %s", sort, "desc"))
+		} else {
+			db = db.Order(fmt.Sprintf("%s %s", sort, "asc"))
+		}
+	}
+	if size != "" {
+		parseInt, _ := strconv.ParseInt(size, 10, 64)
+		db = db.Limit(int(parseInt))
+	}
+	if skip != "" {
+		parseInt, _ := strconv.ParseInt(skip, 10, 64)
+		db = db.Offset(int(parseInt))
 	}
 	err := db.Find(&resp).Error
 	return resp, err

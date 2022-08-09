@@ -10,6 +10,10 @@
         $(document).ready(function () {
             $("#search").click(function () {
                 req = {
+                    size: $("#size").val(),
+                    skip: $("#skip").val(),
+                    sortType: $("#sortType").val(),
+                    sort: $("#sort").val(),
                     liangbi: $("#liangbi").val(),
                     type: $("#type").val(),
                     hlLow: $("#hlLow").val(),
@@ -29,7 +33,7 @@
                         tableBody = '';
                         for (var i in res) {
                             d = res[i];
-                            t = "股票";
+                            t = "STO";
                             if (d.Type == 2) {
                                 t = 'ETF';
                             }
@@ -55,7 +59,6 @@
                                 '</tr>'
                         }
                         $("#tableData").html(tableBody)
-                        console.log(res)
                     }
                 });
             });
@@ -94,6 +97,26 @@
                                              class="ui_input_txt02"/>
 
                         -<input type="text" id="priceHigh" name="fangyuanEntity.fyZldz" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;排序方式
+                        <select name="fangyuanEntity.fyXqCode" class="ui_select01" id="sort" style="width:80px;">
+                            <option value="id">默认ID</option>
+                            <option value="hl">高低位</option>
+                            <option value="pe">市盈率</option>
+                            <option value="yield">股息率</option>
+                            <option value="liangbi">量比</option>
+                            <option value="price">价格</option>
+                        </select>
+                        <select name="fangyuanEntity.fyXqCode" class="ui_select01" id="sortType" style="width:50px;">
+                            <option value="asc">正序</option>
+                            <option value="desc">倒序</option>
+                        </select>
+                        skip
+                        <input type="text" id="skip" name="fangyuanEntity.fyZldz"
+                               class="ui_input_txt02" style="width:50px;"/>
+                        size
+                        <input type="text" id="size" name="fangyuanEntity.fyZldz" value="1000"
+                               class="ui_input_txt02" style="width:50px;"/>
+
 
                     </div>
                     <div id="box_bottom">
@@ -110,7 +133,7 @@
                         </th>
                         <th>ID</th>
                         <th>代码</th>
-                        <th>中文名</th>
+                        <th style="width:280px;">中文名</th>
                         <th>类型</th>
                         <th>市盈率</th>
                         <th>股息率</th>
@@ -121,7 +144,7 @@
                         <th>52L</th>
                         <th>52H</th>
                         <th>高低位</th>
-                        <th>雪球</th>
+                        <th style="width:100px;">雪球</th>
                     </tr>
                     <tbody id="tableData"></tbody>
                 </table>
