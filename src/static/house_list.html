@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<script type="text/javascript" src="scripts/jquery/jquery-1.7.1.js"></script>
+<link href="style/authority/basic_layout.css" rel="stylesheet" type="text/css">
+<link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
+<title>stock</title>
+<script type="text/javascript">
+	
+</script>
+<style>
+	.alt td{ background:black !important;}
+</style>
+</head>
+<body>
+	<form id="submitForm" name="submitForm" action="" method="post">
+		<input type="hidden" name="allIDCheck" value="" id="allIDCheck"/>
+		<input type="hidden" name="fangyuanEntity.fyXqName" value="" id="fyXqName"/>
+		<div id="container">
+			<div class="ui_content">
+				<div class="ui_text_indent">
+					<div id="box_border">
+						<div id="box_top">搜索</div>
+						<div id="box_center">
+							<!-- 小区
+							<select name="fangyuanEntity.fyXqCode" id="fyXq" class="ui_select01" onchange="getFyDhListByFyXqCode();">
+                                <option value=""
+                                >--请选择--</option>
+                                <option value="6">瑞景河畔</option>
+                                <option value="77">蔚蓝小区</option>
+                                <option value="83">和盛园小区</option>
+                            </select> -->
+							高低位<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
+							-<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
+							&nbsp;&nbsp;市盈率<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
+							&nbsp;&nbsp;股息率<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
+							&nbsp;&nbsp;价格<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
+							-<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
+							
+						</div>
+						<div id="box_bottom">
+							<input type="button" value="查询" class="ui_input_btn01" onclick="search();" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="ui_content">
+				<div class="ui_tb">
+					<table class="table" cellspacing="0" cellpadding="0" width="100%" align="center" border="0">
+						<tr>
+							<th width="30"><input type="checkbox" id="all" onclick="selectOrClearAllCheckbox(this);" />
+							</th>
+							<th>位置</th>
+							<th>房源</th>
+							<th>房源面积</th>
+							<th>计租面积</th>
+							<th>户型</th>
+							<th>建筑结构</th>
+							<th>租赁性质</th>
+							<th>状态</th>
+							<th>操作</th>
+						</tr>
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458579642011" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼1-111</td>
+								<td>65.97㎡</td>
+								<td>65.97㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458579642011" class="edit">编辑</a> 
+									<a href="javascript:del('14458579642011');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458625716623" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼1-112</td>
+								<td>67.47㎡</td>
+								<td>67.47㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>已配租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458625716623" class="edit">编辑</a> 
+									<a href="javascript:del('14458625716623');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458592537463" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼2-121</td>
+								<td>65.97㎡</td>
+								<td>65.97㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458592537463" class="edit">编辑</a> 
+									<a href="javascript:del('14458592537463');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458632171244" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼2-122</td>
+								<td>67.47㎡</td>
+								<td>67.47㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458632171244" class="edit">编辑</a> 
+									<a href="javascript:del('14458632171244');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458599318263" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼3-131</td>
+								<td>65.97㎡</td>
+								<td>65.97㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458599318263" class="edit">编辑</a> 
+									<a href="javascript:del('14458599318263');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458638753194" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼3-132</td>
+								<td>67.47㎡</td>
+								<td>67.47㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458638753194" class="edit">编辑</a> 
+									<a href="javascript:del('14458638753194');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458606278350" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼4-141</td>
+								<td>65.97㎡</td>
+								<td>65.97㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458606278350" class="edit">编辑</a> 
+									<a href="javascript:del('14458606278350');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458644830000" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼4-142</td>
+								<td>67.47㎡</td>
+								<td>67.47㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>已配租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458644830000" class="edit">编辑</a> 
+									<a href="javascript:del('14458644830000');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458612828548" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼5-151</td>
+								<td>65.97㎡</td>
+								<td>65.97㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>建成待租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458612828548" class="edit">编辑</a> 
+									<a href="javascript:del('14458612828548');">删除</a>
+								</td>
+							</tr>
+						
+							<tr>
+								<td><input type="checkbox" name="IDCheck" value="14458619251417" class="acb" /></td>
+								<td>城中区</td>
+								<td>瑞景河畔16号楼6-161</td>
+								<td>65.97㎡</td>
+								<td>65.97㎡</td>
+								<td>一室一厅一卫</td>
+								<td>混凝土</td>
+								<td>公租房</td>
+								<td>已配租</td>
+								<td>
+									<a href="house_edit.html?fyID=14458619251417" class="edit">编辑</a> 
+									<a href="javascript:del('14458619251417');">删除</a>
+								</td>
+							</tr>
+						
+					</table>
+				</div>
+			</div>
+		</div>
+	</form>
+</body>
+</html>
