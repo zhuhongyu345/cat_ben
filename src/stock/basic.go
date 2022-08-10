@@ -11,29 +11,37 @@ import (
 )
 
 //from https://xueqiu.com/S/INTC
-func flushBasic() {
+func FlushBasic() {
+	log.Println("flush start")
 	stocks, _ := db.GetAllStockFromDB()
 	for _, stock := range stocks {
-		pe, yield, chn, price, h52, l52, liangbi, shizhi, huanshoulv := getDetailFromXQ(stock.Name)
+		pe, yield, chn, price, h52, l52, liangbi, shizhi, huanshoulv, err := getDetailFromXQ(stock.Name)
+		if err != nil {
+			continue
+		}
 		hl := (price - l52) / (h52 - l52)
 		if h52 == l52 {
 			hl = 1
 		}
 		hl = math.Round(hl*10000) / 10000
-		err := db.UpdateByID(stock.ID, pe, yield, chn, price, h52, l52, hl, liangbi, shizhi, huanshoulv)
+		err = db.UpdateByID(stock.ID, pe, yield, chn, price, h52, l52, hl, liangbi, shizhi, huanshoulv)
 		if err != nil {
 			log.Println(err)
 		}
 	}
+	log.Println("flush finish")
 }
 
-func getDetailFromXQ(name string) (float64, float64, string, float64, float64, float64, float64, float64, float64) {
+func getDetailFromXQ(name string) (float64, float64, string, float64, float64, float64, float64, float64, float64, error) {
 	header := map[string]string{
-		"cookie":     "device_id=6be81810d4762245af84672121d4971a; s=dq1nkgp4ed; xq_a_token=bf75ab4bcea18c79de253cb841f2b27e248d8948; xqat=bf75ab4bcea18c79de253cb841f2b27e248d8948; xq_r_token=c7d30dc738a77dd909a8228f3053679e86bf104b; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTY2MTgxNjI0MSwiY3RtIjoxNjU5NDA4MzAyOTA4LCJjaWQiOiJkOWQwbjRBWnVwIn0.YeFdnnx_q_P-m7w2YmzY6oJ7R3eG_260cirgCrFL-tNXH7b-87HEOAzivePXIuw_Vwrw8F0BGvvLoWR687viJO8O6uhbNAMMsnldVEinjDmcsx-eXl9WVUtqi5xrjiPYSyGVRuvwrdVlBn4P2ycqX1_SI9x2IRmfNlA7ZEyuYQxIhYlwJ4K2Af1Lb4Xuo0-iusHEPtvbKHXEcQKsK_adJalgo37FM4MIikkBHtDn1yM_p0CzTjFgeR2V_mgsg1AnC5lI3sXPYMgpp6BvjiAJL46R726gP-roHshjC70253f57zyK8PeLL7YNP65N2zFpTiR9mU_lmedslH4c_IxMYg; u=131659408360534; Hm_lvt_1db88642e346389874251b5a1eded6e3=1659408362; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1659955530",
+		"cookie":     "device_id=12121d4971a333; s=dq1nkgp4ed; xq_a_token=bf75ab4bcea18c79de253cb841f2b27e248d8948; xqat=bf75ab4bcea18c79de253cb841f2b27e248d8948; xq_r_token=c7d30dc738a77dd909a8228f3053679e86bf104b; xq_id_token=eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiJ9.eyJ1aWQiOi0xLCJpc3MiOiJ1YyIsImV4cCI6MTY2MTgxNjI0MSwiY3RtIjoxNjU5NDA4MzAyOTA4LCJjaWQiOiJkOWQwbjRBWnVwIn0.YeFdnnx_q_P-m7w2YmzY6oJ7R3eG_260cirgCrFL-tNXH7b-87HEOAzivePXIuw_Vwrw8F0BGvvLoWR687viJO8O6uhbNAMMsnldVEinjDmcsx-eXl9WVUtqi5xrjiPYSyGVRuvwrdVlBn4P2ycqX1_SI9x2IRmfNlA7ZEyuYQxIhYlwJ4K2Af1Lb4Xuo0-iusHEPtvbKHXEcQKsK_adJalgo37FM4MIikkBHtDn1yM_p0CzTjFgeR2V_mgsg1AnC5lI3sXPYMgpp6BvjiAJL46R726gP-roHshjC70253f57zyK8PeLL7YNP65N2zFpTiR9mU_lmedslH4c_IxMYg; u=131659408360534; Hm_lvt_1db88642e346389874251b5a1eded6e3=1659408362; Hm_lpvt_1db88642e346389874251b5a1eded6e3=1659955530",
 		"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
 	}
 	resp, err := bizcall.GetJSONWithHeader(context.Background(), fmt.Sprintf("https://stock.xueqiu.com/v5/stock/quote.json?symbol=%s&extend=detail", name), header)
-	log.Println(err)
+	if err != nil {
+		log.Println(err)
+		return 0, 0, "", 0, 0, 0, 0, 0, 0, err
+	}
 	var respXQ JSONDataXueQiuBasic
 	json.Unmarshal(resp, &respXQ)
 	log.Println(respXQ)
@@ -46,7 +54,7 @@ func getDetailFromXQ(name string) (float64, float64, string, float64, float64, f
 	liangbi := respXQ.Data.Quote.VolumeRatio
 	shizhi := (respXQ.Data.Quote.MarketCapital) / float64(100000000)
 	huanshou := respXQ.Data.Quote.TurnoverRate
-	return ttm, yield, nameCHN, price, h52, l52, liangbi, shizhi, huanshou
+	return ttm, yield, nameCHN, price, h52, l52, liangbi, shizhi, huanshou, nil
 }
 
 type JSONDataXueQiuBasic struct {

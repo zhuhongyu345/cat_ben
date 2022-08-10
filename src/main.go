@@ -14,13 +14,25 @@ func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/chainEcharts", http.HandlerFunc(OptionServer))
 	mux.Handle("/search", http.HandlerFunc(SelectServer))
+	mux.Handle("/flush", http.HandlerFunc(FlushServer))
 	http.ListenAndServe(":8001", mux)
 }
 
+func FlushServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("flush req")
+	go stock.FlushBasic()
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	fmt.Fprintf(w, string(`success`))
+	return
+}
+
 func SelectServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("req:%s", r.Form)
 	hlLow := r.FormValue("hlLow")
 	hlHigh := r.FormValue("hlHigh")
-	pe := r.FormValue("pe")
+	peHigh := r.FormValue("peHigh")
+	peLow := r.FormValue("peLow")
+	name := r.FormValue("name")
 	yield := r.FormValue("yield")
 	priceLow := r.FormValue("priceLow")
 	priceHigh := r.FormValue("priceHigh")
@@ -30,9 +42,7 @@ func SelectServer(w http.ResponseWriter, r *http.Request) {
 	size := r.FormValue("size")
 	sort := r.FormValue("sort")
 	sortType := r.FormValue("sortType")
-
-	log.Printf("req:%s,%s,%s,%s,%s,%s", hlLow, hlHigh, pe, yield, priceLow, priceHigh)
-	search := stock.Search(hlLow, hlHigh, pe, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
+	search := stock.Search(name, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	marshal, err := json.Marshal(search)
 	log.Printf("%s", err)

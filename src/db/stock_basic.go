@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
+	"time"
 )
 
 type Sto struct {
@@ -20,6 +22,7 @@ type Sto struct {
 	Lb    float64 `gorm:"column:liangbi"`
 	Sz    float64 `gorm:"column:shizhi"`
 	Hsl   float64 `gorm:"column:huanshoulv"`
+	Up    string  `gorm:"column:up"`
 }
 
 func CreateStos(stos []*Sto) error {
@@ -35,17 +38,24 @@ func GetAllStockFromDB() ([]*Sto, error) {
 		InitDb()
 	}
 	resp := make([]*Sto, 0)
-	err := dbLite.Table("stock_basic").Where("1=1 and (hl is null or hl = -1 or shizhi = -1)").Find(&resp).Error
+	format := time.Now().Format("2006-01-02")
+	err := dbLite.Table("stock_basic").Where("up!=?", format).Find(&resp).Error
 	return resp, err
 }
 
-func Search(hlLow, hlHigh, pe, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
+func Search(name, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
 	if dbLite == nil {
 		InitDb()
 	}
 	resp := make([]*Sto, 0)
 	debug := dbLite.Debug()
 	db := debug.Table("stock_basic").Where("1=1")
+
+	if name != "" {
+		err := db.Where("name=?", strings.ToUpper(name)).Find(&resp).Error
+		return resp, err
+	}
+
 	if tpe != "" {
 		if float, err := strconv.ParseInt(tpe, 10, 64); err == nil {
 			db = db.Where("type=?", float)
@@ -66,9 +76,14 @@ func Search(hlLow, hlHigh, pe, yield, priceLow, priceHigh, liangbi, tpe, skip, s
 			db = db.Where("hl<=?", float)
 		}
 	}
-	if pe != "" {
-		if float, err := strconv.ParseFloat(pe, 64); err == nil {
+	if peHigh != "" {
+		if float, err := strconv.ParseFloat(peHigh, 64); err == nil {
 			db = db.Where("pe<=?", float)
+		}
+	}
+	if peLow != "" {
+		if float, err := strconv.ParseFloat(peLow, 64); err == nil {
+			db = db.Where("pe>=?", float)
 		}
 	}
 	if yield != "" {
@@ -110,6 +125,7 @@ func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, li
 	if dbLite == nil {
 		InitDb()
 	}
+	up := time.Now().Format("2006-01-02")
 	update := map[string]interface{}{
 		"pe":         math.Round(pe*10000) / 10000,
 		"yield":      math.Round(yield*10000) / 10000,
@@ -121,6 +137,7 @@ func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, li
 		"liangbi":    math.Round(liangbi*10000) / 10000,
 		"shizhi":     math.Round(shizhi*10000) / 10000,
 		"huanshoulv": math.Round(huanshoulv*10000) / 10000,
+		"up":         up,
 	}
 	err := dbLite.Table("stock_basic").Where("id = ?", id).Updates(update).Error
 	return err

@@ -8,61 +8,91 @@
     <title>stock</title>
     <script type="text/javascript">
         $(document).ready(function () {
+            $(".ui_input_txt02").keydown(function (e) {
+                if (e.keyCode == 13) {
+                    search();
+                }
+            });
+            $(".ui_select01").change(function () {
+                search();
+            });
+
+
+            $("#flush").click(function () {
+                flush();
+            });
             $("#search").click(function () {
-                req = {
-                    size: $("#size").val(),
-                    skip: $("#skip").val(),
-                    sortType: $("#sortType").val(),
-                    sort: $("#sort").val(),
-                    liangbi: $("#liangbi").val(),
-                    type: $("#type").val(),
-                    hlLow: $("#hlLow").val(),
-                    hlHigh: $("#hlHigh").val(),
-                    pe: $("#pe").val(),
-                    yield: $("#yield").val(),
-                    priceLow: $("#priceLow").val(),
-                    priceHigh: $("#priceHigh").val(),
-                };
-                console.log(req)
-                $.ajax({
-                    type: "post",
-                    url: "http://127.0.0.1:8001/search",
-                    data: req,
-                    success: function (result) {
-                        res = JSON.parse(result)
-                        tableBody = '';
-                        for (var i in res) {
-                            d = res[i];
-                            t = "STO";
-                            if (d.Type == 2) {
-                                t = 'ETF';
-                            }
-                            link = "https://xueqiu.com/S/"+d.Name
-                            tableBody += '<tr>' +
-                                '<td><input type="checkbox" name="IDCheck" value="14458579642011" class="acb"/></td>' +
-                                '<td>' + d.ID + '</td>' +
-                                '<td>' + d.Name + '</td>' +
-                                '<td>' + d.CHN + '</td>' +
-                                '<td>' + t + '</td>' +
-                                '<td>' + d.PE + '</td>' +
-                                '<td>' + d.Yield + '</td>' +
-                                '<td>' + d.Sz + '</td>' +
-                                '<td>' + d.Price + '</td>' +
-                                '<td>' + d.Hsl + '</td>' +
-                                '<td>' + d.Lb + '</td>' +
-                                '<td>' + d.L52 + '</td>' +
-                                '<td>' + d.H52 + '</td>' +
-                                '<td>' + d.Hl + '</td>' +
-                                '<td>' +
-                                '<a target="_blank" href="'+link+'" class="edit">详情</a>' +
-                                '</td>' +
-                                '</tr>'
-                        }
-                        $("#tableData").html(tableBody)
-                    }
-                });
+                search();
             });
         });
+
+        function flush(){
+            $.ajax({
+                type: "post",
+                url: "http://127.0.0.1:8001/flush",
+                success: function (result) {
+                    console.log("flush")
+                    console.log(result)
+                }
+            });
+        }
+        function search() {
+            req = {
+                size: $("#size").val(),
+                skip: $("#skip").val(),
+                sortType: $("#sortType").val(),
+                sort: $("#sort").val(),
+                liangbi: $("#liangbi").val(),
+                name: $("#name").val(),
+                type: $("#type").val(),
+                hlLow: $("#hlLow").val(),
+                hlHigh: $("#hlHigh").val(),
+                peHigh: $("#peHigh").val(),
+                peLow: $("#peLow").val(),
+                yield: $("#yield").val(),
+                priceLow: $("#priceLow").val(),
+                priceHigh: $("#priceHigh").val(),
+            };
+            console.log(req)
+            $.ajax({
+                type: "post",
+                url: "http://127.0.0.1:8001/search",
+                data: req,
+                success: function (result) {
+                    res = JSON.parse(result)
+                    tableBody = '';
+                    for (var i in res) {
+                        d = res[i];
+                        t = "STO";
+                        if (d.Type == 2) {
+                            t = 'ETF';
+                        }
+                        link = "https://xueqiu.com/S/" + d.Name
+                        tableBody += '<tr>' +
+                            '<td><input type="checkbox" name="IDCheck" value="14458579642011" class="acb"/></td>' +
+                            '<td>' + d.ID + '</td>' +
+                            '<td>' + d.Name + '</td>' +
+                            '<td>' + d.CHN + '</td>' +
+                            '<td>' + t + '</td>' +
+                            '<td>' + d.PE + '</td>' +
+                            '<td>' + d.Yield + '</td>' +
+                            '<td>' + d.Sz + '</td>' +
+                            '<td>' + d.Price + '</td>' +
+                            '<td>' + d.Hsl + '</td>' +
+                            '<td>' + d.Lb + '</td>' +
+                            '<td>' + d.L52 + '</td>' +
+                            '<td>' + d.H52 + '</td>' +
+                            '<td>' + d.Hl + '</td>' +
+                            '<td>' + d.Up + '</td>' +
+                            '<td>' +
+                            '<a target="_blank" href="' + link + '" class="edit">详情</a>' +
+                            '</td>' +
+                            '</tr>'
+                    }
+                    $("#tableData").html(tableBody)
+                }
+            });
+        }
     </script>
     <style>
         .alt td {
@@ -80,25 +110,23 @@
                 <div id="box_border">
                     <div id="box_top">搜索</div>
                     <div id="box_center">
+                        代码<input type="text" id="name" style="width:60px;" class="ui_input_txt02"/>
                         类型
-                        <select name="fangyuanEntity.fyXqCode" class="ui_select01" id="type">
+                        <select class="ui_select01" style="width:60px;" id="type">
                             <option value="">全部</option>
                             <option value="1">股票</option>
                             <option value="2">ETF</option>
                         </select>
-                        高低位<input type="text" id="hlLow" name="fangyuanEntity.fyZldz" class="ui_input_txt02"/>
-                        -<input type="text" id="hlHigh" name="fangyuanEntity.fyZldz" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;市盈率<input type="text" id="pe" name="fangyuanEntity.fyZldz" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;股息率<input type="text" id="yield" name="fangyuanEntity.fyZldz"
-                                              class="ui_input_txt02"/>
-                        &nbsp;&nbsp;量比<input type="text" id="liangbi" name="fangyuanEntity.fyZldz"
-                                             class="ui_input_txt02"/>
-                        &nbsp;&nbsp;价格<input type="text" id="priceLow" name="fangyuanEntity.fyZldz"
-                                             class="ui_input_txt02"/>
-
-                        -<input type="text" id="priceHigh" name="fangyuanEntity.fyZldz" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;高低位<input type="text" id="hlLow" style="width:60px;" class="ui_input_txt02"/>
+                        -<input type="text" id="hlHigh" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;市盈率<input type="text" id="peLow" style="width:60px;" class="ui_input_txt02"/>
+                        -<input type="text" id="peHigh" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;股息率<input type="text" id="yield" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;量比<input type="text" id="liangbi" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;价格<input type="text" id="priceLow" style="width:60px;" class="ui_input_txt02"/>
+                        -<input type="text" id="priceHigh" style="width:60px;" class="ui_input_txt02"/>
                         &nbsp;&nbsp;排序方式
-                        <select name="fangyuanEntity.fyXqCode" class="ui_select01" id="sort" style="width:80px;">
+                        <select class="ui_select01" id="sort" style="width:80px;">
                             <option value="id">默认ID</option>
                             <option value="hl">高低位</option>
                             <option value="pe">市盈率</option>
@@ -106,20 +134,19 @@
                             <option value="liangbi">量比</option>
                             <option value="price">价格</option>
                         </select>
-                        <select name="fangyuanEntity.fyXqCode" class="ui_select01" id="sortType" style="width:50px;">
+                        <select class="ui_select01" id="sortType" style="width:50px;">
                             <option value="asc">正序</option>
                             <option value="desc">倒序</option>
                         </select>
                         skip
-                        <input type="text" id="skip" name="fangyuanEntity.fyZldz"
-                               class="ui_input_txt02" style="width:50px;"/>
+                        <input type="text" id="skip" class="ui_input_txt02" style="width:50px;"/>
                         size
-                        <input type="text" id="size" name="fangyuanEntity.fyZldz" value="1000"
-                               class="ui_input_txt02" style="width:50px;"/>
+                        <input type="text" id="size" class="ui_input_txt02" style="width:50px;" value="1000"/>
 
 
                     </div>
                     <div id="box_bottom">
+                        <input type="button" value="刷新" class="ui_input_btn01" id="flush"/>
                         <input type="button" value="查询" class="ui_input_btn01" id="search"/>
                     </div>
                 </div>
@@ -144,6 +171,7 @@
                         <th>52L</th>
                         <th>52H</th>
                         <th>高低位</th>
+                        <th>更新日期</th>
                         <th style="width:100px;">雪球</th>
                     </tr>
                     <tbody id="tableData"></tbody>
