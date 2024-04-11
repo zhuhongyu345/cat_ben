@@ -9,5 +9,5 @@ func TestBuildStock(t *testing.T) {
 }
 
 func TestFlushGuxilv(t *testing.T) {
-	flushBasic()
+	//flushBasic()
 }

@@ -1,11 +1,11 @@
 package db
 
 import (
-	"gorm.io/driver/sqlite"
+	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
 
-const dbPath = "/Users/bytedance/go/src/cat_ben/src/db/sqllite3.db"
+const dbPath = "D:/workplace/cat_ben/src/db/sqllite3.db"
 
 var dbLite *gorm.DB
 

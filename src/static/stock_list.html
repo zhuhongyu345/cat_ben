@@ -18,18 +18,22 @@
             });
 
 
+            $("#flushHard").click(function () {
+                flush("1");
+            });
             $("#flush").click(function () {
-                flush();
+                flush("0");
             });
             $("#search").click(function () {
                 search();
             });
         });
 
-        function flush(){
+        function flush(hard){
             $.ajax({
                 type: "post",
                 url: "http://127.0.0.1:8001/flush",
+                data: {hard: hard},
                 success: function (result) {
                     console.log("flush")
                     console.log(result)
@@ -101,11 +105,12 @@
     </style>
 </head>
 <body>
+
 <form id="submitForm" name="submitForm" action="" method="post">
     <input type="hidden" name="allIDCheck" value="" id="allIDCheck"/>
     <input type="hidden" name="fangyuanEntity.fyXqName" value="" id="fyXqName"/>
     <div id="container">
-        <div class="ui_content">
+        <div class="">
             <div class="ui_text_indent">
                 <div id="box_border">
                     <div id="box_top">搜索</div>
@@ -146,8 +151,9 @@
 
                     </div>
                     <div id="box_bottom">
-                        <input type="button" value="刷新" class="ui_input_btn01" id="flush"/>
-                        <input type="button" value="查询" class="ui_input_btn01" id="search"/>
+                        <input type="button" style="background-color: palevioletred" value="强制刷新" class="ui_input_btn01" id="flushHard"/>
+                        <input type="button" style="background-color: limegreen" value="刷新" class="ui_input_btn01" id="flush"/>
+                        <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01" id="search"/>
                     </div>
                 </div>
             </div>

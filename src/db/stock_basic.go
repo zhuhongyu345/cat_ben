@@ -33,13 +33,16 @@ func CreateStos(stos []*Sto) error {
 	return err
 }
 
-func GetAllStockFromDB() ([]*Sto, error) {
+func GetAllStockFromDB(hard string) ([]*Sto, error) {
 	if dbLite == nil {
 		InitDb()
 	}
 	resp := make([]*Sto, 0)
-	format := time.Now().Format("2006-01-02")
-	err := dbLite.Table("stock_basic").Where("up!=?", format).Find(&resp).Error
+	query := dbLite.Debug().Table("stock_basic").Where("1=1")
+	if hard == "0" || hard == "" {
+		query = query.Where("up!=?", time.Now().Format("2006-01-02"))
+	}
+	err := query.Find(&resp).Error
 	return resp, err
 }
 

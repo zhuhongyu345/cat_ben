@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<header>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript" src="scripts/jquery/jquery-1.7.1.js"></script>
+    <link href="style/authority/basic_layout.css" rel="stylesheet" type="text/css">
+    <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
+    <input type="button" id="stock_list" value="股票列表" ></input>
+    <input type="button" id="option_line" value="期权相关" ></input>
+    <input type="button" id="config" value="配置中心" ></input>
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#stock_list").click(function () {
+                window.location.href = './stock_list.html';
+            });
+            $("#option_line").click(function () {
+                window.location.href = './option_line.html';
+            });
+            $("#config").click(function () {
+                window.location.href = './config.html';
+            });
+
+        });
+    </script>
+</header>
+<body></body>
+</html>
+
+
