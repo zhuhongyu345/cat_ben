@@ -9,15 +9,28 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 func main() {
 	mux := http.NewServeMux()
 	mux.Handle("/chainEcharts", http.HandlerFunc(OptionServer))
 	mux.Handle("/search", http.HandlerFunc(SelectServer))
+	mux.Handle("/history", http.HandlerFunc(HistoryServer))
 	mux.Handle("/flush", http.HandlerFunc(FlushServer))
+	mux.Handle("/deleteOne", http.HandlerFunc(DeleteServer))
 	mux.Handle("/config", http.HandlerFunc(ConfigServer))
 	http.ListenAndServe(":8001", mux)
+}
+
+func DeleteServer(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	log.Printf("delete req id:" + id)
+	i, _ := strconv.ParseInt(id, 10, 64)
+	_ = db.DeleteStoById(i)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	fmt.Fprintf(w, string(`success`))
+	return
 }
 
 func ConfigServer(w http.ResponseWriter, r *http.Request) {
@@ -43,15 +56,34 @@ func ConfigServer(w http.ResponseWriter, r *http.Request) {
 
 func FlushServer(w http.ResponseWriter, r *http.Request) {
 	hard := r.FormValue("hard")
+	tpe := r.FormValue("type")
 	log.Printf("flush req hard:" + hard)
-	go stock.FlushBasic(hard)
+	go stock.FlushBasic(hard, tpe)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	fmt.Fprintf(w, string(`success`))
 	return
 }
 
+func HistoryServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("HistoryServer")
+	name := r.FormValue("name")
+	count := r.FormValue("count")
+	period := r.FormValue("period")
+	resp := stock.GetHistory(strings.ToUpper(name), period, count)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	marshal, err := json.Marshal(resp)
+	if err != nil {
+		log.Printf("%s", err)
+	}
+	fmt.Fprintf(w, string(marshal))
+	return
+}
 func SelectServer(w http.ResponseWriter, r *http.Request) {
 	log.Printf("SelectServer")
+	zclHigh := r.FormValue("zclHigh")
+	zclLow := r.FormValue("zclLow")
+	cjlLow := r.FormValue("cjlLow")
+	cjlHigh := r.FormValue("cjlHigh")
 	hlLow := r.FormValue("hlLow")
 	hlHigh := r.FormValue("hlHigh")
 	peHigh := r.FormValue("peHigh")
@@ -66,7 +98,7 @@ func SelectServer(w http.ResponseWriter, r *http.Request) {
 	size := r.FormValue("size")
 	sort := r.FormValue("sort")
 	sortType := r.FormValue("sortType")
-	search := stock.Search(name, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
+	search := stock.Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	marshal, err := json.Marshal(search)
 	log.Printf("%s", err)

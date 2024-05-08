@@ -35,7 +35,8 @@ func PostFormWithHeader(ctx context.Context, url string, info url.Values, header
 
 func PostJSONWithHeader(ctx context.Context, url string, info interface{}, header map[string]string) ([]byte, error) {
 	msg, _ := json.Marshal(info)
-	log.Printf("post json %s req:%s, header:%s", url, string(msg), header)
+	log.Printf("post json %s req:%s", url, string(msg))
+	//log.Printf("post json %s req:%s, header:%s", url, string(msg), header)
 	req, _ := http.NewRequest("POST", url, bytes.NewBuffer(msg))
 	req.Header.Set("Content-Type", "application/json")
 	for k, v := range header {
@@ -53,7 +54,8 @@ func PostJSONWithHeader(ctx context.Context, url string, info interface{}, heade
 }
 
 func GetJSONWithHeader(ctx context.Context, url string, header map[string]string) ([]byte, error) {
-	log.Printf("get json %s header:%s", url, header)
+	log.Printf("get json %s", url)
+	//log.Printf("get json %s header:%s", url, header)
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Set("Content-Type", "application/json")
 	for k, v := range header {
@@ -66,6 +68,6 @@ func GetJSONWithHeader(ctx context.Context, url string, header map[string]string
 	}
 	defer resp.Body.Close()
 	respByte, _ := ioutil.ReadAll(resp.Body)
-	log.Printf("get json %s, header:%s, resp:%s", url, header, string(respByte))
+	//log.Printf("get json %s, header:%s, resp:%s", url, header, string(respByte))
 	return respByte, nil
 }

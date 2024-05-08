@@ -18,6 +18,9 @@
             });
 
 
+            $("#deleteSome").click(function () {
+                deleteOne();
+            });
             $("#flushHard").click(function () {
                 flush("1");
             });
@@ -28,12 +31,33 @@
                 search();
             });
         });
-
+        function deleteOne(){
+            $("input:checkbox").each(function (){
+                if ($(this).is(':checked')){
+                    checkedValue = $(this).val()
+                    console.log(checkedValue)
+                    $.ajax({
+                        type: "post",
+                        url: "http://127.0.0.1:8001/deleteOne",
+                        data: {id: checkedValue},
+                        success: function (result) {
+                            console.log("flush")
+                            console.log(result)
+                            search()
+                        }
+                    });
+                }
+            })
+            search()
+        }
         function flush(hard){
             $.ajax({
                 type: "post",
                 url: "http://127.0.0.1:8001/flush",
-                data: {hard: hard},
+                data: {
+                    hard: hard,
+                    type: $("#type").val(),
+                },
                 success: function (result) {
                     console.log("flush")
                     console.log(result)
@@ -56,6 +80,12 @@
                 yield: $("#yield").val(),
                 priceLow: $("#priceLow").val(),
                 priceHigh: $("#priceHigh").val(),
+                cjlHigh: $("#cjlHigh").val(),
+                cjlLow: $("#cjlLow").val(),
+                zclHigh: $("#zclHigh").val(),
+                zclLow: $("#zclLow").val(),
+
+
             };
             console.log(req)
             $.ajax({
@@ -67,27 +97,38 @@
                     tableBody = '';
                     for (var i in res) {
                         d = res[i];
-                        t = "STO";
+                        t = "未知";
                         if (d.Type == 2) {
-                            t = 'ETF';
+                            t = '美股ETF';
+                        }else if (d.Type == 1){
+                            t = '美股股票';
+                        }else if (d.Type == 3){
+                            t = 'A股股票';
                         }
                         link = "https://xueqiu.com/S/" + d.Name
+                        linkHistory = "./pe_history.html?name=" + d.Name
                         tableBody += '<tr>' +
-                            '<td><input type="checkbox" name="IDCheck" value="14458579642011" class="acb"/></td>' +
+                            '<td><input type="checkbox" name="IDCheck" value="'+d.ID+'" class="acb"/></td>' +
                             '<td>' + d.ID + '</td>' +
                             '<td>' + d.Name + '</td>' +
                             '<td>' + d.CHN + '</td>' +
                             '<td>' + t + '</td>' +
                             '<td>' + d.PE + '</td>' +
                             '<td>' + d.Yield + '</td>' +
-                            '<td>' + d.Sz + '</td>' +
+                            // '<td>' + d.Sz + '</td>' +
                             '<td>' + d.Price + '</td>' +
-                            '<td>' + d.Hsl + '</td>' +
-                            '<td>' + d.Lb + '</td>' +
-                            '<td>' + d.L52 + '</td>' +
-                            '<td>' + d.H52 + '</td>' +
+                            // '<td>' + d.Hsl + '</td>' +
+                            // '<td>' + d.Lb + '</td>' +
+                            // '<td>' + d.L52 + '</td>' +
+                            // '<td>' + d.H52 + '</td>' +
                             '<td>' + d.Hl + '</td>' +
+                            '<td>' + d.CjlD + '</td>' +
+                            '<td>' + d.ZCL + '</td>' +
+                            '<td>' + d.ZCW + '</td>' +
                             '<td>' + d.Up + '</td>' +
+                            '<td>' +
+                            '<a target="_blank" href="' + linkHistory + '" class="edit">详情</a>' +
+                            '</td>' +
                             '<td>' +
                             '<a target="_blank" href="' + link + '" class="edit">详情</a>' +
                             '</td>' +
@@ -107,20 +148,19 @@
 <body>
 
 <form id="submitForm" name="submitForm" action="" method="post">
-    <input type="hidden" name="allIDCheck" value="" id="allIDCheck"/>
-    <input type="hidden" name="fangyuanEntity.fyXqName" value="" id="fyXqName"/>
     <div id="container">
         <div class="">
             <div class="ui_text_indent">
-                <div id="box_border">
+                <div id="box_border" style="height: 180px;">
                     <div id="box_top">搜索</div>
                     <div id="box_center">
                         代码<input type="text" id="name" style="width:60px;" class="ui_input_txt02"/>
                         类型
-                        <select class="ui_select01" style="width:60px;" id="type">
+                        <select class="ui_select01" style="width:85px;" id="type">
                             <option value="">全部</option>
-                            <option value="1">股票</option>
-                            <option value="2">ETF</option>
+                            <option value="1">美股股票</option>
+                            <option value="2">美股ETF</option>
+                            <option value="3">A股股票</option>
                         </select>
                         &nbsp;&nbsp;高低位<input type="text" id="hlLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="hlHigh" style="width:60px;" class="ui_input_txt02"/>
@@ -130,6 +170,10 @@
                         &nbsp;&nbsp;量比<input type="text" id="liangbi" style="width:60px;" class="ui_input_txt02"/>
                         &nbsp;&nbsp;价格<input type="text" id="priceLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="priceHigh" style="width:60px;" class="ui_input_txt02"/>
+                         成交率<input type="text" id="cjlLow" style="width:60px;" class="ui_input_txt02"/>
+                        -<input type="text" id="cjlHigh" style="width:60px;" class="ui_input_txt02"/>
+                         支撑率<input type="text" id="zclLow" style="width:60px;" class="ui_input_txt02"/>
+                        -<input type="text" id="zclHigh" style="width:60px;" class="ui_input_txt02"/>
                         &nbsp;&nbsp;排序方式
                         <select class="ui_select01" id="sort" style="width:80px;">
                             <option value="id">默认ID</option>
@@ -138,6 +182,9 @@
                             <option value="yield">股息率</option>
                             <option value="liangbi">量比</option>
                             <option value="price">价格</option>
+                            <option value="cjlrateday">成交率</option>
+                            <option value="zcrate">支撑率</option>
+                            <option value="zcweek">周支撑率</option>
                         </select>
                         <select class="ui_select01" id="sortType" style="width:50px;">
                             <option value="asc">正序</option>
@@ -150,8 +197,9 @@
 
 
                     </div>
-                    <div id="box_bottom">
+                    <div id="box_bottom" style="margin-top: 50px;">
                         <input type="button" style="background-color: palevioletred" value="强制刷新" class="ui_input_btn01" id="flushHard"/>
+                        <input type="button" style="background-color: darkred" value="删除所选" class="ui_input_btn01" id="deleteSome"/>
                         <input type="button" style="background-color: limegreen" value="刷新" class="ui_input_btn01" id="flush"/>
                         <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01" id="search"/>
                     </div>
@@ -166,19 +214,23 @@
                         </th>
                         <th>ID</th>
                         <th>代码</th>
-                        <th style="width:280px;">中文名</th>
-                        <th>类型</th>
+                        <th style="width:250px;">中文名</th>
+                        <th style="width:109px;">类型</th>
                         <th>市盈率</th>
                         <th>股息率</th>
-                        <th>市值</th>
+<!--                        <th>市值</th>-->
                         <th>价格</th>
-                        <th>换手率</th>
-                        <th>量比</th>
-                        <th>52L</th>
-                        <th>52H</th>
+<!--                        <th>换手率</th>-->
+<!--                        <th>量比</th>-->
+<!--                        <th>52L</th>-->
+<!--                        <th>52H</th>-->
                         <th>高低位</th>
+                        <th>成交率</th>
+                        <th>支撑率</th>
+                        <th>周支撑率</th>
                         <th>更新日期</th>
-                        <th style="width:100px;">雪球</th>
+                        <th style="width:39px;">历史</th>
+                        <th style="width:39px;">雪球</th>
                     </tr>
                     <tbody id="tableData"></tbody>
                 </table>

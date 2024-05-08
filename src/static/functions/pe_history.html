@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <script type="text/javascript" src="./jquery-1.7.1.js"></script>
+    <title>stock</title>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#search").click(function () {
+                search();
+            });
+        });
+
+        function search() {
+            url ='https://stock.xueqiu.com/v5/stock/chart/kline.json?symbol=SZ000011&begin=1714279319011&period=week&type=before&count=-284&indicator=kline,pe,pb,ps,pcf,market_capital,agt,ggt,balance'
+            $.ajax({
+                type: "get",
+                url: url,
+                dataType:'jsonp',
+                jsonp: "callback",
+                jsonpCallback: 'callback',
+                // async: false,
+                // data: "code="+code+"&start="+start+"&number="+number+"&type="+type,
+                success:function(data){
+                    console.log(data);
+                },error:function(XMLHttpRequest, textStatus, errorThrown){
+                    console.log(errorThrown)
+                }
+            });
+            // $.ajax({
+            //     type: "get",
+            //     url: url,
+            //
+            //     headers:{
+            //         'origin': 'https://xueqiu.com'
+            //     },
+            //     success: function (result) {
+            //          console.log(result)
+            //
+            //          res = JSON.parse(result)
+            //         tableBody = '';
+            //         for (var i in res) {
+            //             d = res[i];
+            //             t = "未知";
+            //             if (d.Type == 2) {
+            //                 t = '美股ETF';
+            //             }else if (d.Type == 1){
+            //                 t = '美股股票';
+            //             }else if (d.Type == 3){
+            //                 t = 'A股股票';
+            //             }
+            //             link = "https://xueqiu.com/S/" + d.Name
+            //             tableBody += '<tr>' +
+            //                 '<td><input type="checkbox" name="IDCheck" value="'+d.ID+'" class="acb"/></td>' +
+            //                 '<td>' + d.ID + '</td>' +
+            //                 '<td>' + d.Name + '</td>' +
+            //                 '<td>' + d.CHN + '</td>' +
+            //                 '<td>' + t + '</td>' +
+            //                 '<td>' + d.PE + '</td>' +
+            //                 '<td>' + d.Yield + '</td>' +
+            //                 '<td>' + d.Sz + '</td>' +
+            //                 '<td>' + d.Price + '</td>' +
+            //                 '<td>' + d.Hsl + '</td>' +
+            //                 '<td>' + d.Lb + '</td>' +
+            //                 '<td>' + d.L52 + '</td>' +
+            //                 '<td>' + d.H52 + '</td>' +
+            //                 '<td>' + d.Hl + '</td>' +
+            //                 '<td>' + d.CjlD + '</td>' +
+            //                 '<td>' + d.ZCL + '</td>' +
+            //                 '<td>' + d.Up + '</td>' +
+            //                 '<td>' +
+            //                 '<a target="_blank" href="' + link + '" class="edit">详情</a>' +
+            //                 '</td>' +
+            //                 '</tr>'
+            //         }
+            //         $("#tableData").html(tableBody)
+            //     }
+            // });
+        }
+    </script>
+    <style>
+        .alt td {
+            background: black !important;
+        }
+    </style>
+</head>
+<body>
+
+<form id="submitForm" name="submitForm" action="" method="post">
+    <div id="container">
+        <div class="">
+            <div class="ui_text_indent">
+                <div id="box_border" style="height: 30px;">
+                     <div id="box_center">
+                        代码<input type="text" id="name" style="width:90px;" class="ui_input_txt02"/>
+                         &nbsp;&nbsp;统计时长<input type="text" id="count" value="5" style="width:60px;" class="ui_input_txt02"/>
+                         <select class="ui_select01" style="width:55px;height: 21px;" id="type">
+                             <option value="1">日</option>
+                             <option value="2">月</option>
+                             <option value="3">年</option>
+                         </select>
+                     </div>
+
+                </div>
+                <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01" id="search"/>
+
+            </div>
+        </div>
+        <div class="ui_content">
+            <div class="ui_tb">
+                <table class="table" cellspacing="0" cellpadding="0" width="100%" align="center" border="0">
+                    <tr>
+                        <th width="30"><input type="checkbox" id="all" onclick="selectOrClearAllCheckbox(this);"/>
+                        </th>
+                        <th>ID</th>
+                        <th>代码</th>
+                        <th style="width:250px;">中文名</th>
+                        <th style="width:109px;">类型</th>
+                        <th>市盈率</th>
+                        <th>股息率</th>
+                        <th>市值</th>
+                        <th>价格</th>
+                        <th>换手率</th>
+                        <th>量比</th>
+                        <th>52L</th>
+                        <th>52H</th>
+                        <th>高低位</th>
+                        <th>成交率</th>
+                        <th>支撑率</th>
+                        <th>更新日期</th>
+                        <th style="width:100px;">雪球</th>
+                    </tr>
+                    <tbody id="tableData"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</form>
+</body>
+</html>
