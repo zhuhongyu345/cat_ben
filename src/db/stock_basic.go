@@ -23,6 +23,9 @@ type Sto struct {
 	Sz    float64 `gorm:"column:shizhi"`
 	Hsl   float64 `gorm:"column:huanshoulv"`
 	Up    string  `gorm:"column:up"`
+	CjlD  float64 `gorm:"column:cjlrateday"`
+	ZCL   float64 `gorm:"column:zcrate"`
+	ZCW   float64 `gorm:"column:zcweek"`
 }
 
 func CreateStos(stos []*Sto) error {
@@ -33,12 +36,27 @@ func CreateStos(stos []*Sto) error {
 	return err
 }
 
-func GetAllStockFromDB(hard string) ([]*Sto, error) {
+func DeleteStoById(id int64) error {
+	if dbLite == nil {
+		InitDb()
+	}
+	err := dbLite.Debug().Table("stock_basic").Where("id=?", id).Delete(new(Sto)).Error
+	return err
+}
+
+func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
 	if dbLite == nil {
 		InitDb()
 	}
 	resp := make([]*Sto, 0)
 	query := dbLite.Debug().Table("stock_basic").Where("1=1")
+	//A股刷新
+	//query := dbLite.Debug().Table("stock_basic").Where("type=3")
+	if tpe != "" {
+		if t, err := strconv.ParseInt(tpe, 10, 64); err == nil {
+			query = query.Where("type=?", t)
+		}
+	}
 	if hard == "0" || hard == "" {
 		query = query.Where("up!=?", time.Now().Format("2006-01-02"))
 	}
@@ -46,7 +64,7 @@ func GetAllStockFromDB(hard string) ([]*Sto, error) {
 	return resp, err
 }
 
-func Search(name, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
+func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
 	if dbLite == nil {
 		InitDb()
 	}
@@ -67,6 +85,26 @@ func Search(name, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, lian
 	if liangbi != "" {
 		if float, err := strconv.ParseFloat(liangbi, 64); err == nil {
 			db = db.Where("liangbi>?", float)
+		}
+	}
+	if zclLow != "" {
+		if float, err := strconv.ParseFloat(zclLow, 64); err == nil {
+			db = db.Where("zcrate>=?", float)
+		}
+	}
+	if zclHigh != "" {
+		if float, err := strconv.ParseFloat(zclHigh, 64); err == nil {
+			db = db.Where("zcrate<=?", float)
+		}
+	}
+	if cjlLow != "" {
+		if float, err := strconv.ParseFloat(cjlLow, 64); err == nil {
+			db = db.Where("cjlrateday>=?", float)
+		}
+	}
+	if cjlHigh != "" {
+		if float, err := strconv.ParseFloat(cjlHigh, 64); err == nil {
+			db = db.Where("cjlrateday<=?", float)
 		}
 	}
 	if hlLow != "" {
@@ -124,7 +162,7 @@ func Search(name, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, lian
 	return resp, err
 }
 
-func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, liangbi, shizhi, huanshoulv float64) error {
+func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, liangbi, shizhi, huanshoulv, cjlrateday, zcrate, zcweek float64) error {
 	if dbLite == nil {
 		InitDb()
 	}
@@ -141,6 +179,9 @@ func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, li
 		"shizhi":     math.Round(shizhi*10000) / 10000,
 		"huanshoulv": math.Round(huanshoulv*10000) / 10000,
 		"up":         up,
+		"cjlrateday": math.Round(cjlrateday*10000) / 10000,
+		"zcrate":     math.Round(zcrate*10000) / 10000,
+		"zcweek":     math.Round(zcweek*10000) / 10000,
 	}
 	err := dbLite.Table("stock_basic").Where("id = ?", id).Updates(update).Error
 	return err
