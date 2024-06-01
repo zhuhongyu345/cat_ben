@@ -27,6 +27,12 @@
             $("#flush").click(function () {
                 flush("0");
             });
+            $("#addTag").click(function () {
+                changeTag("1");
+            });
+            $("#delTag").click(function () {
+                changeTag("0");
+            });
             $("#search").click(function () {
                 search();
             });
@@ -49,6 +55,27 @@
                 }
             })
             search()
+        }
+        function changeTag(yn){
+            $("input:checkbox").each(function (){
+                if ($(this).is(':checked')){
+                    checkedValue = $(this).val()
+                    console.log(checkedValue)
+                    $.ajax({
+                        type: "post",
+                        url: "http://127.0.0.1:8001/tagOne",
+                        data: {
+                            id: checkedValue,
+                            tag: yn,
+                        },
+                        success: function (result) {
+                            console.log(checkedValue + ":tag")
+                            console.log(result)
+                            search()
+                        }
+                    });
+                }
+            })
         }
         function flush(hard){
             $.ajax({
@@ -158,6 +185,7 @@
                         类型
                         <select class="ui_select01" style="width:85px;" id="type">
                             <option value="">全部</option>
+                            <option value="-1">自选</option>
                             <option value="1">美股股票</option>
                             <option value="2">美股ETF</option>
                             <option value="3">A股股票</option>
@@ -198,6 +226,8 @@
 
                     </div>
                     <div id="box_bottom" style="margin-top: 50px;">
+                        <input type="button" style="background-color: limegreen" value="加自选" class="ui_input_btn01" id="addTag"/>
+                        <input type="button" style="background-color: mediumvioletred" value="去自选" class="ui_input_btn01" id="delTag"/>
                         <input type="button" style="background-color: palevioletred" value="强制刷新" class="ui_input_btn01" id="flushHard"/>
                         <input type="button" style="background-color: darkred" value="删除所选" class="ui_input_btn01" id="deleteSome"/>
                         <input type="button" style="background-color: limegreen" value="刷新" class="ui_input_btn01" id="flush"/>
