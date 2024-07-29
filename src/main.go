@@ -17,6 +17,12 @@ func main() {
 
 	fmt.Println("run server")
 	mux := http.NewServeMux()
+	path := "D:/workplace/cat_ben/src/static"
+	if !db.Local {
+		path = "C:/static"
+	}
+	mux.Handle("/static/", http.StripPrefix("/static/",
+		http.FileServer(http.Dir(path))))
 	mux.Handle("/chainEcharts", http.HandlerFunc(OptionServer))
 	mux.Handle("/search", http.HandlerFunc(SelectServer))
 	mux.Handle("/history", http.HandlerFunc(HistoryServer))

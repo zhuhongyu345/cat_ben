@@ -47,7 +47,7 @@
                     console.log(checkedValue)
                     $.ajax({
                         type: "post",
-                        url: "http://127.0.0.1:80/deleteOne",
+                        url: hostC + "/deleteOne",
                         data: {id: checkedValue},
                         success: function (result) {
                             console.log("flush")
