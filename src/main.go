@@ -10,9 +10,12 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
+
+	fmt.Println("run server")
 	mux := http.NewServeMux()
 	mux.Handle("/chainEcharts", http.HandlerFunc(OptionServer))
 	mux.Handle("/search", http.HandlerFunc(SelectServer))
@@ -21,7 +24,16 @@ func main() {
 	mux.Handle("/deleteOne", http.HandlerFunc(DeleteServer))
 	mux.Handle("/tagOne", http.HandlerFunc(TagServer))
 	mux.Handle("/config", http.HandlerFunc(ConfigServer))
-	http.ListenAndServe(":8001", mux)
+	fmt.Println("run server")
+	go FlushTask()
+	http.ListenAndServe(":80", mux)
+}
+
+func FlushTask() {
+	for {
+		time.Sleep(time.Hour * 2)
+		stock.FlushBasic("1", "")
+	}
 }
 
 func DeleteServer(w http.ResponseWriter, r *http.Request) {

@@ -9,7 +9,10 @@
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
     <title>历史数据</title>
     <script type="text/javascript">
+        var hostC = 'http://62.234.93.154:80'
+
         $(document).ready(function () {
+
             $("#name").val(getUrlParameter("name"))
             $("#period").val("month")
             $("#count").val(120)
@@ -40,13 +43,13 @@
         }
         function search(){
             console.log("search")
-            //http://127.0.0.1:8001/history?name=msft&count=100&period=day
+            //http://127.0.0.1:80/history?name=msft&count=100&period=day
             var name = $("#name").val();
             var coun = $("#count").val();
             var period = $("#period").val();
             $.ajax({
                 type: "get",
-                url: "http://127.0.0.1:8001/history?name="+name+"&count="+coun+"&period="+period,
+                url: hostC +"/history?name="+name+"&count="+coun+"&period="+period,
                 success: function (result) {
                     console.log(result)
                     viewData(JSON.parse(result))
@@ -63,7 +66,6 @@
             var app = {};
 
             var option;
-
             option = {
                 xAxis: {
                     type: 'category',
@@ -73,6 +75,8 @@
                     data: ['价格', '市盈率']
                 },
                 yAxis: {
+                    max: 50,
+                    min: -10,
                     type: 'value'
                 },
                 series: [

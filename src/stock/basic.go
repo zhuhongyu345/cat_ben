@@ -20,6 +20,7 @@ func FlushBasic(hard string, tpe string) {
 	stocks, _ := db.GetAllStockFromDB(hard, tpe)
 	end := 0
 	begin := time.Now().Unix()
+	count := 0
 	for i := 0; i < CURRENT; i++ {
 		flag := int64(i)
 		go func() {
@@ -50,6 +51,7 @@ func FlushBasic(hard string, tpe string) {
 				if err != nil {
 					log.Println(err)
 				}
+				count++
 			}
 			end++
 		}()
@@ -63,6 +65,8 @@ func FlushBasic(hard string, tpe string) {
 
 	log.Print("flush finish cost:")
 	log.Println(time.Now().Unix() - begin)
+	log.Print("count:")
+	log.Println(count)
 }
 
 // 这段代码是获取日 周级别k线的代码

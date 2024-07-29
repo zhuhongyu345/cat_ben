@@ -7,6 +7,8 @@
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
 
     <script type="text/javascript">
+        var hostC = 'http://62.234.93.154:80'
+
         $(document).ready(function () {
             initData();
             $("#xqTokenUp").click(function () {
@@ -19,7 +21,7 @@
                 console.log(req)
                 $.ajax({
                     type: "post",
-                    url: "http://127.0.0.1:8001/config",
+                    url: hostC + "/config",
                     data: req,
                 });
             });
@@ -33,7 +35,7 @@
             };
             $.ajax({
                 type: "post",
-                url: "http://127.0.0.1:8001/config",
+                url: hostC +"/config",
                 data: req,
                 success: function (result) {
                     res = JSON.parse(result)
