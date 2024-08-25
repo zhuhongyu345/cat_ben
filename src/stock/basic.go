@@ -9,11 +9,32 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strconv"
 	"time"
 )
 
 // from https://xueqiu.com/S/INTC
 const CURRENT = 1
+
+var sleep = 0
+
+func getSleep() int {
+	if sleep > 0 {
+		return sleep
+	}
+	value, err := db.GetValue(`sleep`)
+	if err != nil {
+		sleep = 1000
+	}
+	atoi, err := strconv.Atoi(value)
+	if err != nil {
+		sleep = 1000
+	}
+	sleep = atoi
+	fmt.Print("sleep:")
+	fmt.Println(sleep)
+	return sleep
+}
 
 func FlushBasic(hard string, tpe string) {
 	log.Println("flush start")
@@ -30,6 +51,7 @@ func FlushBasic(hard string, tpe string) {
 		flag := int64(i)
 		go func() {
 			for _, stock := range stocks {
+				time.Sleep(time.Duration(getSleep()) * time.Millisecond)
 				if stock.ID%CURRENT != flag {
 					continue
 				}

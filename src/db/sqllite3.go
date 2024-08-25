@@ -5,7 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const Local = true
+const Local = false
 
 // const dbPath = "C:/sqllite3.db"
 var dbPath = "D:/workplace/cat_ben/src/db/sqllite3.db"

@@ -37,7 +37,7 @@ func main() {
 
 func FlushTask() {
 	for {
-		time.Sleep(time.Hour * 2)
+		time.Sleep(time.Hour * 1)
 		stock.FlushBasic("1", "")
 	}
 }
