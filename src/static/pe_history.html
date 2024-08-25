@@ -9,9 +9,10 @@
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
     <title>历史数据</title>
     <script type="text/javascript">
-        var hostC = 'http://62.234.93.154:80'
+        var hostC = 'http://82.156.244.4:80'
 
         $(document).ready(function () {
+            var p = (getUrlParameter("p"))
 
             $("#name").val(getUrlParameter("name"))
             $("#period").val("month")
@@ -27,7 +28,7 @@
             $(".ui_select01").change(function () {
                 search();
             });
-            search();
+            search(p);
 
         });
         function getUrlParameter(name) {
@@ -41,7 +42,7 @@
             }
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
-        function search(){
+        function search(p){
             console.log("search")
             //http://127.0.0.1:80/history?name=msft&count=100&period=day
             var name = $("#name").val();
@@ -52,12 +53,12 @@
                 url: hostC +"/history?name="+name+"&count="+coun+"&period="+period,
                 success: function (result) {
                     console.log(result)
-                    viewData(JSON.parse(result))
+                    viewData(JSON.parse(result),p)
                 }
             });
         }
 
-        function viewData(r) {
+        function viewData(r,p) {
             var dom = document.getElementById('container');
             var myChart = echarts.init(dom, null, {
                 renderer: 'canvas',
@@ -66,6 +67,7 @@
             var app = {};
 
             var option;
+
             option = {
                 xAxis: {
                     type: 'category',
@@ -74,9 +76,7 @@
                 legend: {
                     data: ['价格', '市盈率']
                 },
-                yAxis: {
-                    max: 50,
-                    min: -10,
+                yAxis : {
                     type: 'value'
                 },
                 series: [
@@ -92,7 +92,11 @@
                     }
                 ]
             };
-
+            if (p==undefined){
+                option.yAxis.max = 50
+                option.yAxis.min = -10
+            }
+            console.log(option)
             if (option && typeof option === 'object') {
                 myChart.setOption(option);
             }

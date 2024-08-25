@@ -17,6 +17,11 @@ const CURRENT = 1
 
 func FlushBasic(hard string, tpe string) {
 	log.Println("flush start")
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("recover:", r)
+		}
+	}()
 	stocks, _ := db.GetAllStockFromDB(hard, tpe)
 	end := 0
 	begin := time.Now().Unix()

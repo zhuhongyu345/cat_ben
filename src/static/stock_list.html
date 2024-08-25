@@ -7,7 +7,7 @@
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
     <title>stock</title>
     <script type="text/javascript">
-        var hostC = 'http://62.234.93.154:80'
+        var hostC = 'http://82.156.244.4:80'
         $(document).ready(function () {
 
 
@@ -39,6 +39,7 @@
             $("#search").click(function () {
                 search();
             });
+            search();
         });
         function deleteOne(){
             $("input:checkbox").each(function (){
@@ -52,7 +53,6 @@
                         success: function (result) {
                             console.log("flush")
                             console.log(result)
-                            search()
                         }
                     });
                 }
@@ -125,7 +125,9 @@
                 success: function (result) {
                     res = JSON.parse(result)
                     tableBody = '';
+                    totc = 0
                     for (var i in res) {
+                        totc++
                         d = res[i];
                         t = "未知";
                         if (d.Type == 2) {
@@ -165,6 +167,8 @@
                             '</tr>'
                     }
                     $("#tableData").html(tableBody)
+                    console.log('count:')
+                    console.log(totc)
                 }
             });
         }
@@ -189,13 +193,13 @@
                         <select class="ui_select01" style="width:85px;" id="type">
                             <option value="">全部</option>
                             <option value="-1">自选</option>
-                            <option value="1">美股股票</option>
+                            <option value="1" selected>美股股票</option>
                             <option value="2">美股ETF</option>
                             <option value="3">A股股票</option>
                         </select>
                         &nbsp;&nbsp;高低位<input type="text" id="hlLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="hlHigh" style="width:60px;" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;市盈率<input type="text" id="peLow" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;市盈率<input type="text" value="0" id="peLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="peHigh" style="width:60px;" class="ui_input_txt02"/>
                         &nbsp;&nbsp;股息率<input type="text" id="yield" style="width:60px;" class="ui_input_txt02"/>
                         &nbsp;&nbsp;量比<input type="text" id="liangbi" style="width:60px;" class="ui_input_txt02"/>
@@ -215,7 +219,7 @@
                             <option value="price">价格</option>
                             <option value="cjlrateday">成交率</option>
                             <option value="zcrate">支撑率</option>
-                            <option value="zcweek">周支撑率</option>
+                            <option value="zcweek" selected>周支撑率</option>
                         </select>
                         <select class="ui_select01" id="sortType" style="width:50px;">
                             <option value="asc">正序</option>
