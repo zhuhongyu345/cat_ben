@@ -12,6 +12,9 @@ type ZCPoint struct {
 
 func getZhicheng(kData []*KlineData, ZCL_DIFF_PERCENT float64) float64 {
 
+	if len(kData) == 0 {
+		return -1
+	}
 	lows := make([]float64, 0)
 	for _, v := range kData {
 		lows = append(lows, v.Low)
