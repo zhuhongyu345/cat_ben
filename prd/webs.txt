@@ -15,9 +15,10 @@ https://api.nasdaq.com/api/quote/TSLA/option-chain?assetclass=stocks&limit=60&of
 原网址：
 https://www.nasdaq.com/market-activity/stocks/tsla/option-chain
 
-yahoo
-https://finance.yahoo.com/quote/SPY/options?straddle=false
-接口：
-https://query2.finance.yahoo.com/v7/finance/options/spy?formatted=true&crumb=vfl3yRoKaKQ&lang=en-US&region=US&date=1653004800&corsDomain=finance.yahoo.com
+微牛美股：
+https://www.webull.hk/quote/nasdaq-msft
+其中有个下次财报日比较特别，另外几个pe也很有意义。
+request接口是https://quotes-gw.webullfintech.com/api/quotes/ticker/getRealTimeBySymbol?exchangeCode=NASDAQ&symbol=MSFT
 
-
+富途个股
+https://www.futunn.com/stock/AAPL-US
