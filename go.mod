@@ -4,10 +4,12 @@ go 1.18
 
 require (
 	github.com/glebarez/sqlite v1.10.0
+	github.com/tebeka/selenium v0.9.9
 	gorm.io/gorm v1.25.5
 )
 
 require (
+	github.com/blang/semver v3.5.1+incompatible // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/glebarez/go-sqlite v1.21.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect

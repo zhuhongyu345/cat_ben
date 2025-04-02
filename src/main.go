@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cat_ben/src/chromedriver"
 	"cat_ben/src/db"
 	"cat_ben/src/option"
 	"cat_ben/src/stock"
@@ -37,6 +38,7 @@ func main() {
 
 func FlushTask() {
 	for {
+		chromedriver.GetTokenAndSave()
 		time.Sleep(time.Hour * 1)
 		stock.FlushBasic("1", "")
 	}
