@@ -54,7 +54,11 @@ func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
 	//query := dbLite.Debug().Table("stock_basic").Where("type=3")
 	if tpe != "" {
 		if t, err := strconv.ParseInt(tpe, 10, 64); err == nil {
-			query = query.Where("type=?", t)
+			if t > 0 {
+				query = query.Where("type=?", t)
+			} else {
+				query = query.Where("tag=?", 1)
+			}
 		}
 	}
 	if hard == "0" || hard == "" {
@@ -78,8 +82,12 @@ func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow
 	}
 
 	if tpe != "" {
-		if float, err := strconv.ParseInt(tpe, 10, 64); err == nil {
-			db = db.Where("type=?", float)
+		if typeInt, err := strconv.ParseInt(tpe, 10, 64); err == nil {
+			if typeInt > 0 {
+				db = db.Where("type=?", typeInt)
+			} else {
+				db.Where("tag=?", 1)
+			}
 		}
 	}
 	if liangbi != "" {
@@ -186,4 +194,15 @@ func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, li
 	err := dbLite.Table("stock_basic").Where("id = ?", id).Updates(update).Error
 	return err
 
+}
+
+func UpdateTagByID(id int64, tag string) error {
+	if dbLite == nil {
+		InitDb()
+	}
+	update := map[string]interface{}{
+		"tag": tag,
+	}
+	err := dbLite.Table("stock_basic").Where("id = ?", id).Updates(update).Error
+	return err
 }

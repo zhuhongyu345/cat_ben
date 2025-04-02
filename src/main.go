@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cat_ben/src/chromedriver"
 	"cat_ben/src/db"
 	"cat_ben/src/option"
 	"cat_ben/src/stock"
@@ -10,17 +11,37 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func main() {
+
+	fmt.Println("run server")
 	mux := http.NewServeMux()
+	path := "D:/workplace/cat_ben/src/static"
+	if !db.Local {
+		path = "C:/static"
+	}
+	mux.Handle("/static/", http.StripPrefix("/static/",
+		http.FileServer(http.Dir(path))))
 	mux.Handle("/chainEcharts", http.HandlerFunc(OptionServer))
 	mux.Handle("/search", http.HandlerFunc(SelectServer))
 	mux.Handle("/history", http.HandlerFunc(HistoryServer))
 	mux.Handle("/flush", http.HandlerFunc(FlushServer))
 	mux.Handle("/deleteOne", http.HandlerFunc(DeleteServer))
+	mux.Handle("/tagOne", http.HandlerFunc(TagServer))
 	mux.Handle("/config", http.HandlerFunc(ConfigServer))
-	http.ListenAndServe(":8001", mux)
+	fmt.Println("run server")
+	go FlushTask()
+	http.ListenAndServe(":80", mux)
+}
+
+func FlushTask() {
+	for {
+		chromedriver.GetTokenAndSave()
+		time.Sleep(time.Hour * 1)
+		stock.FlushBasic("1", "")
+	}
 }
 
 func DeleteServer(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +49,16 @@ func DeleteServer(w http.ResponseWriter, r *http.Request) {
 	log.Printf("delete req id:" + id)
 	i, _ := strconv.ParseInt(id, 10, 64)
 	_ = db.DeleteStoById(i)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	fmt.Fprintf(w, string(`success`))
+	return
+}
+func TagServer(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	tag := r.FormValue("tag")
+	log.Printf("tag req id:" + id)
+	i, _ := strconv.ParseInt(id, 10, 64)
+	_ = db.UpdateTagByID(i, tag)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	fmt.Fprintf(w, string(`success`))
 	return

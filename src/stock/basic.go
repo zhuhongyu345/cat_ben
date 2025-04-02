@@ -9,21 +9,49 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"strconv"
 	"time"
 )
 
 // from https://xueqiu.com/S/INTC
 const CURRENT = 1
 
+var sleep = 0
+
+func getSleep() int {
+	if sleep > 0 {
+		return sleep
+	}
+	value, err := db.GetValue(`sleep`)
+	if err != nil {
+		sleep = 1000
+	}
+	atoi, err := strconv.Atoi(value)
+	if err != nil {
+		sleep = 1000
+	}
+	sleep = atoi
+	fmt.Print("sleep:")
+	fmt.Println(sleep)
+	return sleep
+}
+
 func FlushBasic(hard string, tpe string) {
 	log.Println("flush start")
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("recover:", r)
+		}
+	}()
 	stocks, _ := db.GetAllStockFromDB(hard, tpe)
 	end := 0
 	begin := time.Now().Unix()
+	count := 0
 	for i := 0; i < CURRENT; i++ {
 		flag := int64(i)
 		go func() {
 			for _, stock := range stocks {
+				time.Sleep(time.Duration(getSleep()) * time.Millisecond)
 				if stock.ID%CURRENT != flag {
 					continue
 				}
@@ -37,11 +65,14 @@ func FlushBasic(hard string, tpe string) {
 				}
 				hl = math.Round(hl*10000) / 10000
 				kData, cjl, _ := getKlineFromXQ(stock.Name, "day", 69)
-				ts := kData[len(kData)-1].Ts / 1000
-				if time.Now().Unix()-ts > 86400*30 && ts > 0 {
-					db.DeleteStoById(stock.ID)
-					log.Println("delete one stock:" + stock.Name)
+				if len(kData) > 0 {
+					ts := kData[len(kData)-1].Ts / 1000
+					if time.Now().Unix()-ts > 86400*30 && ts > 0 {
+						db.DeleteStoById(stock.ID)
+						log.Println("delete one stock:" + stock.Name)
+					}
 				}
+
 				zcl := getZhicheng(kData, 0.009)
 				kDataW, _, _ := getKlineFromXQ(stock.Name, "week", 159)
 				zcw := getZhicheng(kDataW, 0.012)
@@ -50,6 +81,7 @@ func FlushBasic(hard string, tpe string) {
 				if err != nil {
 					log.Println(err)
 				}
+				count++
 			}
 			end++
 		}()
@@ -63,6 +95,8 @@ func FlushBasic(hard string, tpe string) {
 
 	log.Print("flush finish cost:")
 	log.Println(time.Now().Unix() - begin)
+	log.Print("count:")
+	log.Println(count)
 }
 
 // 这段代码是获取日 周级别k线的代码
@@ -72,6 +106,12 @@ func FlushBasic(hard string, tpe string) {
 //
 //period:week day month
 func getKlineFromXQ(name string, period string, count int64) (data []*KlineData, cjl float64, err error) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Println("recover:", r)
+			log.Println("name:", name)
+		}
+	}()
 	token, _ := db.GetValue("xueqiu_token")
 	header := map[string]string{
 		"cookie":     token,
@@ -116,11 +156,11 @@ func getKlineFromXQ(name string, period string, count int64) (data []*KlineData,
 	if len(items) > 2 {
 		vcurrent = (items[length-1][1] + items[length-2][1] + items[length-3][1]) / 3
 	}
-	cjlrate := float64(-1)
+	cjl = float64(-1)
 	if vavg != 0 {
-		cjlrate = vcurrent / vavg
+		cjl = vcurrent / vavg
 	}
-	return data, cjlrate, nil
+	return data, cjl, nil
 }
 
 // timestamp", "volume", "open", "high", "low", "close",
