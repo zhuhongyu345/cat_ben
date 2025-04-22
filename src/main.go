@@ -36,11 +36,15 @@ func main() {
 	http.ListenAndServe(":80", mux)
 }
 
+var doing = false
+
 func FlushTask() {
 	for {
-		chromedriver.GetTokenAndSave()
 		time.Sleep(time.Hour * 1)
+		doing = true
+		chromedriver.GetTokenAndSave()
 		stock.FlushBasic("1", "")
+		doing = false
 	}
 }
 
@@ -89,9 +93,13 @@ func FlushServer(w http.ResponseWriter, r *http.Request) {
 	hard := r.FormValue("hard")
 	tpe := r.FormValue("type")
 	log.Printf("flush req hard:" + hard)
-	go stock.FlushBasic(hard, tpe)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(`success`))
+	if !doing {
+		go stock.FlushBasic(hard, tpe)
+		fmt.Fprintf(w, string(`success`))
+	} else {
+		fmt.Fprintf(w, string(`doing`))
+	}
 	return
 }
 
