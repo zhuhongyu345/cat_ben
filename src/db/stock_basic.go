@@ -26,6 +26,7 @@ type Sto struct {
 	CjlD  float64 `gorm:"column:cjlrateday"`
 	ZCL   float64 `gorm:"column:zcrate"`
 	ZCW   float64 `gorm:"column:zcweek"`
+	TAG   float64 `gorm:"column:tag"`
 }
 
 func CreateStos(stos []*Sto) error {

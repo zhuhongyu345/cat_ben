@@ -39,8 +39,27 @@
             $("#search").click(function () {
                 search();
             });
+            $("#addOne").click(function () {
+                addOne();
+            });
             search();
         });
+
+        function addOne() {
+            $.ajax({
+                type: "post",
+                url: hostC + "/addOne",
+                data: {
+                    name: $("#name").val(),
+                    type: $("#type").val(),
+                },
+                success: function (result) {
+                    console.log("flush")
+                    console.log(result)
+                }
+            });
+            search()
+        }
 
         function deleteOne() {
             $("input:checkbox").each(function () {
@@ -251,6 +270,8 @@
 
                     </div>
                     <div id="box_bottom" style="margin-top: 0px;">
+                        <input type="button" style="background-color: greenyellow" value="ADD-O" class="ui_input_btn01"
+                               id="addOne"/>
                         <input type="button" style="background-color: limegreen" value="ADD-S" class="ui_input_btn01"
                                id="addTag"/>
                         <input type="button" style="background-color: mediumvioletred" value="DEL-S"

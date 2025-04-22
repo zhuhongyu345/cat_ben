@@ -29,6 +29,7 @@ func main() {
 	mux.Handle("/history", http.HandlerFunc(HistoryServer))
 	mux.Handle("/flush", http.HandlerFunc(FlushServer))
 	mux.Handle("/deleteOne", http.HandlerFunc(DeleteServer))
+	mux.Handle("/addOne", http.HandlerFunc(AddServer))
 	mux.Handle("/tagOne", http.HandlerFunc(TagServer))
 	mux.Handle("/config", http.HandlerFunc(ConfigServer))
 	fmt.Println("run server")
@@ -46,6 +47,23 @@ func FlushTask() {
 		stock.FlushBasic("1", "")
 		doing = false
 	}
+}
+
+func AddServer(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+	tpe := r.FormValue("type")
+	i, _ := strconv.Atoi(tpe)
+	stos := make([]*db.Sto, 0)
+	stos = append(stos, &db.Sto{
+		Name: name,
+		Type: i,
+		TAG:  1,
+	})
+	_ = db.CreateStos(stos)
+	stock.FlushBasic("1", "-1")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	fmt.Fprintf(w, string(`success`))
+	return
 }
 
 func DeleteServer(w http.ResponseWriter, r *http.Request) {
@@ -94,11 +112,11 @@ func FlushServer(w http.ResponseWriter, r *http.Request) {
 	tpe := r.FormValue("type")
 	log.Printf("flush req hard:" + hard)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	if !doing {
+	if !doing || tpe == "-1" {
 		go stock.FlushBasic(hard, tpe)
-		fmt.Fprintf(w, string(`success`))
+		fmt.Fprintf(w, `success`)
 	} else {
-		fmt.Fprintf(w, string(`doing`))
+		fmt.Fprintf(w, `doing`)
 	}
 	return
 }
