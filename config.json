@@ -1,0 +1,5 @@
+{
+  "dbPath": "D:/workplace/cat_ben/src/db/sqllite3.db",
+  "port": 9345,
+  "debug": true
+}

@@ -2,6 +2,7 @@ package main
 
 import (
 	"cat_ben/src/chromedriver"
+	"cat_ben/src/config"
 	"cat_ben/src/db"
 	"cat_ben/src/option"
 	"cat_ben/src/stock"
@@ -15,6 +16,8 @@ import (
 )
 
 func main() {
+
+	config.LoadAll()
 
 	fmt.Println("run server")
 	mux := http.NewServeMux()
@@ -34,7 +37,10 @@ func main() {
 	mux.Handle("/config", http.HandlerFunc(ConfigServer))
 	fmt.Println("run server")
 	go FlushTask()
-	http.ListenAndServe(":80", mux)
+	err := http.ListenAndServe(":"+strconv.Itoa(config.Config.Port), mux)
+	if err != nil {
+		log.Printf("start err:%v", err)
+	}
 }
 
 var doing = false
