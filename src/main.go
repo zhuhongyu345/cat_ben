@@ -19,14 +19,11 @@ func main() {
 
 	config.LoadAll()
 
-	fmt.Println("run server")
+	log.Printf("start server")
 	mux := http.NewServeMux()
-	path := "D:/workplace/cat_ben/src/static"
-	if !db.Local {
-		path = "C:/static"
-	}
+
 	mux.Handle("/static/", http.StripPrefix("/static/",
-		http.FileServer(http.Dir(path))))
+		http.FileServer(http.Dir(config.Config.Static))))
 	mux.Handle("/chainEcharts", http.HandlerFunc(OptionServer))
 	mux.Handle("/search", http.HandlerFunc(SelectServer))
 	mux.Handle("/history", http.HandlerFunc(HistoryServer))
@@ -35,7 +32,7 @@ func main() {
 	mux.Handle("/addOne", http.HandlerFunc(AddServer))
 	mux.Handle("/tagOne", http.HandlerFunc(TagServer))
 	mux.Handle("/config", http.HandlerFunc(ConfigServer))
-	fmt.Println("run server")
+	log.Printf("start listen:%d", config.Config.Port)
 	go FlushTask()
 	err := http.ListenAndServe(":"+strconv.Itoa(config.Config.Port), mux)
 	if err != nil {
@@ -68,7 +65,7 @@ func AddServer(w http.ResponseWriter, r *http.Request) {
 	_ = db.CreateStos(stos)
 	stock.FlushBasic("1", "-1")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(`success`))
+	_ = json.NewEncoder(w).Encode("success")
 	return
 }
 
@@ -78,7 +75,7 @@ func DeleteServer(w http.ResponseWriter, r *http.Request) {
 	i, _ := strconv.ParseInt(id, 10, 64)
 	_ = db.DeleteStoById(i)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(`success`))
+	_ = json.NewEncoder(w).Encode("success")
 	return
 }
 func TagServer(w http.ResponseWriter, r *http.Request) {
@@ -88,8 +85,7 @@ func TagServer(w http.ResponseWriter, r *http.Request) {
 	i, _ := strconv.ParseInt(id, 10, 64)
 	_ = db.UpdateTagByID(i, tag)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(`success`))
-	return
+	_ = json.NewEncoder(w).Encode("success")
 }
 
 func ConfigServer(w http.ResponseWriter, r *http.Request) {
@@ -109,8 +105,8 @@ func ConfigServer(w http.ResponseWriter, r *http.Request) {
 		respData = fmt.Sprintf(`{"key":"%s","value":"%s"}`, key, value)
 	}
 	log.Printf("ConfigServer:" + respData)
-	fmt.Fprintf(w, respData)
-	return
+	_ = json.NewEncoder(w).Encode(respData)
+
 }
 
 func FlushServer(w http.ResponseWriter, r *http.Request) {
@@ -120,11 +116,10 @@ func FlushServer(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	if !doing || tpe == "-1" {
 		go stock.FlushBasic(hard, tpe)
-		fmt.Fprintf(w, `success`)
+		_ = json.NewEncoder(w).Encode("success")
 	} else {
-		fmt.Fprintf(w, `doing`)
+		_ = json.NewEncoder(w).Encode("doing")
 	}
-	return
 }
 
 func HistoryServer(w http.ResponseWriter, r *http.Request) {
@@ -134,12 +129,9 @@ func HistoryServer(w http.ResponseWriter, r *http.Request) {
 	period := r.FormValue("period")
 	resp := stock.GetHistory(strings.ToUpper(name), period, count)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	marshal, err := json.Marshal(resp)
-	if err != nil {
-		log.Printf("%s", err)
-	}
-	fmt.Fprintf(w, string(marshal))
-	return
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+
 }
 func SelectServer(w http.ResponseWriter, r *http.Request) {
 	log.Printf("SelectServer")
@@ -163,23 +155,17 @@ func SelectServer(w http.ResponseWriter, r *http.Request) {
 	sortType := r.FormValue("sortType")
 	search := stock.Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	marshal, err := json.Marshal(search)
-	log.Printf("%s", err)
-	fmt.Fprintf(w, string(marshal))
-	return
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(search)
 }
 
 func OptionServer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	id := r.URL.Query().Get("id")
 	atoi, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
-		fmt.Fprintf(w, `{}`)
-		return
+		_ = json.NewEncoder(w).Encode(`{}`)
 	}
 	chain := option.GetOptionChain(atoi)
-	marshal, _ := json.Marshal(chain)
-	log.Printf("resp:%s", id)
-	w.Header().Add("Access-Control-Allow-Origin", "*")
-	fmt.Fprintf(w, string(marshal))
-	return
+	_ = json.NewEncoder(w).Encode(chain)
 }

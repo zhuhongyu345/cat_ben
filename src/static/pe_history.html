@@ -10,6 +10,7 @@
     <title>历史数据</title>
     <script type="text/javascript">
         var hostC = 'http://82.156.244.4:80'
+        var hostC = 'http://127.0.0.1:9345'
 
         $(document).ready(function () {
             var p = (getUrlParameter("p"))
@@ -53,7 +54,7 @@
                 url: hostC +"/history?name="+name+"&count="+coun+"&period="+period,
                 success: function (result) {
                     console.log(result)
-                    viewData(JSON.parse(result),p)
+                    viewData(result,p)
                 }
             });
         }

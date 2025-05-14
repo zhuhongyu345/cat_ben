@@ -2,15 +2,19 @@ package config
 
 import (
 	"encoding/json"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 )
 
 type jsonConfig struct {
-	DbPath string `json:"dbPath"`
-	Port   int    `json:"port"`
-	Debug  bool   `json:"debug"`
+	DbPath   string `json:"dbPath"`
+	Chrome   string `json:"chromePath"`
+	Headless bool   `json:"chromeHeadless"`
+	Static   string `json:"staticPath"`
+	Port     int    `json:"port"`
+	Debug    bool   `json:"debug"`
 }
 
 var Config jsonConfig
@@ -37,12 +41,14 @@ func loadConfig() {
 }
 
 func loadLog() {
+	// 设置日志输出
 	cwd, _ := os.Getwd()
 	path := filepath.Join(cwd, "app.log")
 	logFile, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
 		panic("loadLog err")
 	}
-	log.SetOutput(logFile)
+	multiWriter := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(multiWriter)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
