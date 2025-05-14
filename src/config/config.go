@@ -15,13 +15,15 @@ type jsonConfig struct {
 	Static   string `json:"staticPath"`
 	Port     int    `json:"port"`
 	Debug    bool   `json:"debug"`
+	LogFile  bool   `json:"logFile"`
 }
 
 var Config jsonConfig
 
 func LoadAll() {
-	loadLog()
 	loadConfig()
+	loadLog()
+	log.Printf("load config success:%+v", Config)
 }
 
 func loadConfig() {
@@ -37,7 +39,6 @@ func loadConfig() {
 	if err != nil {
 		panic("config.json format err")
 	}
-	log.Printf("load config success:%+v", Config)
 }
 
 func loadLog() {
@@ -48,7 +49,11 @@ func loadLog() {
 	if err != nil {
 		panic("loadLog err")
 	}
-	multiWriter := io.MultiWriter(os.Stdout, logFile)
-	log.SetOutput(multiWriter)
+	if Config.LogFile {
+		multiWriter := io.MultiWriter(os.Stdout, logFile)
+		log.SetOutput(multiWriter)
+	} else {
+		log.SetOutput(io.MultiWriter(os.Stdout))
+	}
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }

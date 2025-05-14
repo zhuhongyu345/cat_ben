@@ -4,5 +4,6 @@
   "chromeHeadless": true,
   "staticPath": "D:/workplace/cat_ben/src/static",
   "port": 9345,
+  "logFile": true,
   "debug": true
 }

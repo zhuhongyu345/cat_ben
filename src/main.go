@@ -18,7 +18,7 @@ func main() {
 	//server
 	log.Printf("start server")
 	mux := http.NewServeMux()
-	mux.Handle("/static/", http.StripPrefix("/static/",
+	mux.Handle("/static/", http.StripPrefix("/static",
 		http.FileServer(http.Dir(config.Config.Static))))
 	mux.Handle("/chainEcharts", http.HandlerFunc(server.OptionServer))
 	mux.Handle("/search", http.HandlerFunc(server.SelectServer))
