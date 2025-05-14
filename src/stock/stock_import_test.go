@@ -1,6 +1,7 @@
 package stock
 
 import (
+	_ "cat_ben/src/config"
 	"testing"
 )
 

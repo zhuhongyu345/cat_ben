@@ -10,8 +10,6 @@ import (
 
 func main() {
 
-	//config
-	config.LoadAll()
 	//task
 	go server.FlushTask()
 

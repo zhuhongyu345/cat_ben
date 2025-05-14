@@ -11,6 +11,7 @@ import (
 type Sto struct {
 	ID    int64   `gorm:"column:id"`
 	Name  string  `gorm:"column:name"`
+	Mic   string  `gorm:"column:mic"`
 	Type  int     `gorm:"column:type"`
 	CHN   string  `gorm:"column:chn"`
 	Yield float64 `gorm:"column:yield"`
@@ -29,26 +30,25 @@ type Sto struct {
 	TAG   float64 `gorm:"column:tag"`
 }
 
+func init() {
+	InitDb()
+}
 func CreateStos(stos []*Sto) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	err := dbLite.Table("stock_basic").Create(stos).Error
 	return err
 }
 
+func DeleteALL() error {
+	err := dbLite.Debug().Exec("delete from `stock_basic`").Error
+	return err
+}
+
 func DeleteStoById(id int64) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	err := dbLite.Debug().Table("stock_basic").Where("id=?", id).Delete(new(Sto)).Error
 	return err
 }
 
 func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
-	if dbLite == nil {
-		InitDb()
-	}
 	resp := make([]*Sto, 0)
 	query := dbLite.Debug().Table("stock_basic").Where("1=1")
 	//A股刷新
@@ -70,9 +70,6 @@ func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
 }
 
 func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
-	if dbLite == nil {
-		InitDb()
-	}
 	resp := make([]*Sto, 0)
 	debug := dbLite.Debug()
 	db := debug.Table("stock_basic").Where("1=1")
@@ -172,9 +169,6 @@ func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow
 }
 
 func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, liangbi, shizhi, huanshoulv, cjlrateday, zcrate, zcweek float64) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	up := time.Now().Format("2006-01-02")
 	update := map[string]interface{}{
 		"pe":         math.Round(pe*10000) / 10000,
@@ -198,9 +192,6 @@ func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, li
 }
 
 func UpdateTagByID(id int64, tag string) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	update := map[string]interface{}{
 		"tag": tag,
 	}

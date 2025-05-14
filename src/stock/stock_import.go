@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -24,7 +25,7 @@ type NyseUnit struct {
 
 func allStockToDB() {
 	serverURL := "https://www.nyse.com/api/quotes/filter"
-	pageSize := 100
+	pageSize := 50000
 	param := map[string]interface{}{
 		"pageNumber":        1,
 		"sortColumn":        "NORMALIZED_TICKER",
@@ -38,31 +39,49 @@ func allStockToDB() {
 	log.Printf("%s", header)
 	page := make([]*NyseUnit, 0)
 	_ = json.Unmarshal(header, &page)
-	total := page[0].Total
-	for i := 1; i < total/pageSize; i++ {
-		param["pageNumber"] = i
-		resp, _ := bizcall.PostJSONWithHeader(context.TODO(), serverURL, param, nil)
-		temp := make([]*NyseUnit, 0)
-		_ = json.Unmarshal(resp, &temp)
-		stos := make([]*db.Sto, 0)
-		for _, t := range temp {
-			sType := 0
-			if t.InstrumentType == "EXCHANGE_TRADED_FUND" {
-				sType = 2
-			} else if t.InstrumentType == "COMMON_STOCK" {
-				sType = 1
-			} else {
-				continue
-			}
-			stos = append(stos, &db.Sto{
-				Name: t.NormalizedTicker,
-				Type: sType,
-			})
+	stos := make([]*db.Sto, 0)
+	param["pageNumber"] = 1
+	resp, _ := bizcall.PostJSONWithHeader(context.TODO(), serverURL, param, nil)
+	temp := make([]*NyseUnit, 0)
+	_ = json.Unmarshal(resp, &temp)
+	unknown := make([]string, 0)
+
+	for _, t := range temp {
+		if strings.Contains(t.NormalizedTicker, ".") || strings.Contains(t.NormalizedTicker, ":") {
+			continue
 		}
-		err2 := db.CreateStos(stos)
+		sType := 0
+		if t.InstrumentType == "EXCHANGE_TRADED_FUND" || t.InstrumentType == "INDEX" {
+			sType = 2
+		} else if t.InstrumentType == "COMMON_STOCK" || t.InstrumentType == "DEPOSITORY_RECEIPT" || t.InstrumentType == "PREFERRED_STOCK" {
+			sType = 1
+		} else if t.InstrumentType == "RIGHT" || t.InstrumentType == "UNIT" || t.InstrumentType == "REIT" ||
+			t.InstrumentType == "LIMITED_PARTNERSHIP" || t.InstrumentType == "WARRANT" || t.InstrumentType == "CLOSED_END_FUND" ||
+			t.InstrumentType == "EXCHANGE_TRADED_NOTE" || t.InstrumentType == "NOTE" || t.InstrumentType == "TEST" ||
+			t.InstrumentType == "TRUST" || t.InstrumentType == "UNITS_OF_BENEFICIAL_INTEREST" || t.InstrumentType == "BOND" {
+			continue
+		} else {
+			log.Printf("%+v", t)
+			unknown = append(unknown, t.InstrumentType)
+		}
+		stos = append(stos, &db.Sto{
+			Name: t.NormalizedTicker,
+			Type: sType,
+			Mic:  t.MicCode,
+		})
+	}
+	log.Printf("%+v", unknown)
+	if len(unknown) > 0 {
+		panic(unknown)
+	}
+	_ = db.DeleteALL()
+	for _, sto := range stos {
+		err2 := db.CreateStos([]*db.Sto{sto})
 		if err2 != nil {
 			log.Printf("%s", err2)
+			panic(err2)
 		}
 	}
-	time.Sleep(time.Second * 100)
+
+	time.Sleep(time.Second * 10)
 }

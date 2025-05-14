@@ -20,7 +20,7 @@ type jsonConfig struct {
 
 var Config jsonConfig
 
-func LoadAll() {
+func init() {
 	loadConfig()
 	loadLog()
 	log.Printf("load config success:%+v", Config)
