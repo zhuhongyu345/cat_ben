@@ -4,34 +4,34 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script type="text/javascript" src="scripts/jquery/jquery-1.7.1.js"></script>
     <script type="text/javascript" src="scripts/echarts/echarts-gl.min.js"></script>
+    <script type="text/javascript" src="config.js"></script>
 
     <link href="style/authority/basic_layout.css" rel="stylesheet" type="text/css">
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
     <title>历史数据</title>
     <script type="text/javascript">
-        var hostC = 'http://82.156.244.4:80'
-        var hostC = 'http://127.0.0.1:9345'
 
         $(document).ready(function () {
-            var p = (getUrlParameter("p"))
+            var p = (getUrlParameter("auto"))
 
             $("#name").val(getUrlParameter("name"))
             $("#period").val("month")
             $("#count").val(120)
             $("#search").click(function () {
-                search();
+                search(p);
             });
             $(".ui_input_txt02").keydown(function (e) {
                 if (e.keyCode == 13) {
-                    search();
+                    search(p);
                 }
             });
             $(".ui_select01").change(function () {
-                search();
+                search(p);
             });
             search(p);
 
         });
+
         function getUrlParameter(name) {
             var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)');
             var results = regex.exec(window.location.href);
@@ -43,7 +43,8 @@
             }
             return decodeURIComponent(results[2].replace(/\+/g, ' '));
         }
-        function search(p){
+
+        function search(p) {
             console.log("search")
             //http://127.0.0.1:80/history?name=msft&count=100&period=day
             var name = $("#name").val();
@@ -51,21 +52,20 @@
             var period = $("#period").val();
             $.ajax({
                 type: "get",
-                url: hostC +"/history?name="+name+"&count="+coun+"&period="+period,
+                url: hostC + "/history?name=" + name + "&count=" + coun + "&period=" + period,
                 success: function (result) {
                     console.log(result)
-                    viewData(result,p)
+                    viewData(result, p)
                 }
             });
         }
 
-        function viewData(r,p) {
+        function viewData(r, p) {
             var dom = document.getElementById('container');
             var myChart = echarts.init(dom, null, {
                 renderer: 'canvas',
                 useDirtyRect: false
             });
-            var app = {};
 
             var option;
 
@@ -77,7 +77,7 @@
                 legend: {
                     data: ['价格', '市盈率']
                 },
-                yAxis : {
+                yAxis: {
                     type: 'value'
                 },
                 series: [
@@ -93,7 +93,7 @@
                     }
                 ]
             };
-            if (p==undefined){
+            if (p == undefined) {
                 option.yAxis.max = 50
                 option.yAxis.min = -10
             }
@@ -114,25 +114,27 @@
 <body>
 
 <form id="submitForm" name="submitForm" action="" method="post">
-    <div >
+    <div>
         <div class="">
             <div class="ui_text_indent">
                 <div id="box_border" style="height: 30px;">
-                     <div id="box_center">
+                    <div id="box_center">
                         代码<input type="text" id="name" style="width:90px;" class="ui_input_txt02"/>
-                         &nbsp;&nbsp;统计时长<input type="text" id="count" value="5" style="width:60px;" class="ui_input_txt02"/>
-                         <select class="ui_select01" style="width:59px; " id="period">
-                             <option value="day">日</option>
-                             <option value="week" selected>周</option>
-                             <option value="month">月</option>
-                             <option value="year">年</option>
-                         </select>
-                        <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01" id="search"/>
-                     </div>
+                        &nbsp;&nbsp;统计时长<input type="text" id="count" value="5" style="width:60px;"
+                                                   class="ui_input_txt02"/>
+                        <select class="ui_select01" style="width:59px; " id="period">
+                            <option value="day">日</option>
+                            <option value="week" selected>周</option>
+                            <option value="month">月</option>
+                            <option value="year">年</option>
+                        </select>
+                        <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01"
+                               id="search"/>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="ui_content" >
+        <div class="ui_content">
             <div class="ui_tb" id="container" style="height: 600px;margin-top: 29px;">
 
             </div>

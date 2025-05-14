@@ -3,12 +3,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script type="text/javascript" src="scripts/jquery/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="config.js"></script>
     <link href="style/authority/basic_layout.css" rel="stylesheet" type="text/css">
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
     <title>stock</title>
     <script type="text/javascript">
-        var hostC = 'http://82.156.244.4:80'
-        var hostC = 'http://127.0.0.1:9345'
         $(document).ready(function () {
 
 
@@ -147,12 +146,12 @@
                 url: hostC + "/search",
                 data: req,
                 success: function (result) {
-                    res = JSON.parse(result)
+                    // res = JSON.parse(result)
                     tableBody = '';
                     totc = 0
-                    for (var i in res) {
+                    for (var i in result) {
                         totc++
-                        d = res[i];
+                        d = result[i];
                         t = "UNKNOWN";
                         bdType = "us-"
                         ftType = "-US"
@@ -168,7 +167,7 @@
                         link = "https://xueqiu.com/S/" + d.Name
                         linkbd = "https://gushitong.baidu.com/stock/" + bdType + d.Name
                         linkft = "https://www.futunn.com/stock/" + d.Name + ftType
-                        linkHistory = "./pe_history.html?name=" + d.Name
+                        linkHistory = "./pe_history.html?name=" + d.Name+"&auto"
                         linkwn = "https://www.webull.com.sg/ticker/nasdaq-" + d.Name
                         linkwn2 = "https://www.webull.com.sg/ticker/nyse-" + d.Name
 
