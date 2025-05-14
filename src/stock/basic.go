@@ -31,8 +31,7 @@ func getSleep() int {
 		sleep = 1000
 	}
 	sleep = atoi
-	fmt.Print("sleep:")
-	fmt.Println(sleep)
+	log.Printf("sleep:%d", sleep)
 	return sleep
 }
 
@@ -200,7 +199,7 @@ func getDetailFromXQ(name string) (float64, float64, string, float64, float64, f
 		return 0, 0, "", 0, 0, 0, 0, 0, 0, err
 	}
 	var respXQ JSONDataXueQiuBasic
-	json.Unmarshal(resp, &respXQ)
+	_ = json.Unmarshal(resp, &respXQ)
 	log.Println(respXQ)
 	ttm := respXQ.Data.Quote.PeTtm
 	yield := respXQ.Data.Quote.DividendYield

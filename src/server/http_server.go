@@ -1,0 +1,131 @@
+package server
+
+import (
+	"cat_ben/src/db"
+	"cat_ben/src/option"
+	"cat_ben/src/stock"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+)
+
+func AddServer(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("name")
+	tpe := r.FormValue("type")
+	i, _ := strconv.Atoi(tpe)
+	stos := make([]*db.Sto, 0)
+	stos = append(stos, &db.Sto{
+		Name: name,
+		Type: i,
+		TAG:  1,
+	})
+	_ = db.CreateStos(stos)
+	stock.FlushBasic("1", "-1")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	_ = json.NewEncoder(w).Encode("success")
+	return
+}
+
+func DeleteServer(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	log.Printf("delete req id:" + id)
+	i, _ := strconv.ParseInt(id, 10, 64)
+	_ = db.DeleteStoById(i)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	_ = json.NewEncoder(w).Encode("success")
+	return
+}
+func TagServer(w http.ResponseWriter, r *http.Request) {
+	id := r.FormValue("id")
+	tag := r.FormValue("tag")
+	log.Printf("tag req id:" + id)
+	i, _ := strconv.ParseInt(id, 10, 64)
+	_ = db.UpdateTagByID(i, tag)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	_ = json.NewEncoder(w).Encode("success")
+}
+
+func ConfigServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("ConfigServer")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	respData := `success`
+
+	rd := r.FormValue("rd")
+	key := r.FormValue("key")
+	value := r.FormValue("value")
+	if rd == "read" {
+		resp, _ := db.GetValue(key)
+		respData = fmt.Sprintf(`{"key":"%s","value":"%s"}`, key, resp)
+	}
+	if rd == "write" {
+		_ = db.UpdateValue(key, value)
+		respData = fmt.Sprintf(`{"key":"%s","value":"%s"}`, key, value)
+	}
+	log.Printf("ConfigServer:" + respData)
+	_ = json.NewEncoder(w).Encode(respData)
+
+}
+
+func HistoryServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("HistoryServer")
+	name := r.FormValue("name")
+	count := r.FormValue("count")
+	period := r.FormValue("period")
+	resp := stock.GetHistory(strings.ToUpper(name), period, count)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(resp)
+
+}
+func SelectServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("SelectServer")
+	zclHigh := r.FormValue("zclHigh")
+	zclLow := r.FormValue("zclLow")
+	cjlLow := r.FormValue("cjlLow")
+	cjlHigh := r.FormValue("cjlHigh")
+	hlLow := r.FormValue("hlLow")
+	hlHigh := r.FormValue("hlHigh")
+	peHigh := r.FormValue("peHigh")
+	peLow := r.FormValue("peLow")
+	name := r.FormValue("name")
+	yield := r.FormValue("yield")
+	priceLow := r.FormValue("priceLow")
+	priceHigh := r.FormValue("priceHigh")
+	liangbi := r.FormValue("liangbi")
+	tpe := r.FormValue("type")
+	skip := r.FormValue("skip")
+	size := r.FormValue("size")
+	sort := r.FormValue("sort")
+	sortType := r.FormValue("sortType")
+	search := stock.Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(search)
+}
+
+func OptionServer(w http.ResponseWriter, r *http.Request) {
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	id := r.URL.Query().Get("id")
+	atoi, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(`{}`)
+	}
+	chain := option.GetOptionChain(atoi)
+	_ = json.NewEncoder(w).Encode(chain)
+}
+
+func FlushServer(w http.ResponseWriter, r *http.Request) {
+	hard := r.FormValue("hard")
+	tpe := r.FormValue("type")
+	log.Printf("flush req hard:" + hard)
+	w.Header().Add("Access-Control-Allow-Origin", "*")
+	if !doing || tpe == "-1" {
+		go stock.FlushBasic(hard, tpe)
+		_ = json.NewEncoder(w).Encode("success")
+	} else {
+		_ = json.NewEncoder(w).Encode("doing")
+	}
+}
