@@ -8,7 +8,7 @@ import (
 
 var dbLite *gorm.DB
 
-func InitDb() {
+func init() {
 	dbPath := config.Config.DbPath
 	dbConn, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {

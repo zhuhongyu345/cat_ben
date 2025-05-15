@@ -30,9 +30,6 @@ type Sto struct {
 	TAG   float64 `gorm:"column:tag"`
 }
 
-func init() {
-	InitDb()
-}
 func CreateStos(stos []*Sto) error {
 	err := dbLite.Table("stock_basic").Create(stos).Error
 	return err

@@ -6,9 +6,6 @@ type ConfigPro struct {
 }
 
 func GetValue(key string) (string, error) {
-	if dbLite == nil {
-		InitDb()
-	}
 	resp := make([]*ConfigPro, 0)
 	err := dbLite.Table("config_pro").Where("k=?", key).Find(&resp).
 		Order("id desc").Error
@@ -19,9 +16,6 @@ func GetValue(key string) (string, error) {
 }
 
 func UpdateValue(key, value string) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	update := map[string]interface{}{
 		"v": value,
 	}
