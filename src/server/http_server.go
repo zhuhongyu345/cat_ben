@@ -88,25 +88,33 @@ func HistoryServer(w http.ResponseWriter, r *http.Request) {
 }
 func SelectServer(w http.ResponseWriter, r *http.Request) {
 	log.Printf("SelectServer")
-	zclHigh := r.FormValue("zclHigh")
-	zclLow := r.FormValue("zclLow")
-	cjlLow := r.FormValue("cjlLow")
-	cjlHigh := r.FormValue("cjlHigh")
-	hlLow := r.FormValue("hlLow")
-	hlHigh := r.FormValue("hlHigh")
-	peHigh := r.FormValue("peHigh")
-	peLow := r.FormValue("peLow")
-	name := r.FormValue("name")
-	yield := r.FormValue("yield")
-	priceLow := r.FormValue("priceLow")
-	priceHigh := r.FormValue("priceHigh")
-	liangbi := r.FormValue("liangbi")
-	tpe := r.FormValue("type")
-	skip := r.FormValue("skip")
-	size := r.FormValue("size")
-	sort := r.FormValue("sort")
-	sortType := r.FormValue("sortType")
-	search := stock.Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
+	param := &db.SearchDto{
+		ZclHigh:   getFloat(r.FormValue("zclHigh")),
+		ZclLow:    getFloat(r.FormValue("zclLow")),
+		CjlLow:    getFloat(r.FormValue("cjlLow")),
+		CjlHigh:   getFloat(r.FormValue("cjlHigh")),
+		HlLow:     getFloat(r.FormValue("hlLow")),
+		HlHigh:    getFloat(r.FormValue("hlHigh")),
+		PeHigh:    getFloat(r.FormValue("peHigh")),
+		Yield:     getFloat(r.FormValue("yield")),
+		PriceLow:  getFloat(r.FormValue("priceLow")),
+		PriceHigh: getFloat(r.FormValue("priceHigh")),
+		Liangbi:   getFloat(r.FormValue("liangbi")),
+		Name:      r.FormValue("name"),
+		Tpe:       getInt(r.FormValue("type")),
+		Skip:      getInt(r.FormValue("skip")),
+		Size:      getInt(r.FormValue("size")),
+		SortType:  r.FormValue("sortType"),
+		Sort:      r.FormValue("sort"),
+	}
+	pel := r.FormValue("peLow")
+	if pel == "" {
+		param.PeLow = -10000
+	} else {
+		param.PeLow = getFloat(r.FormValue("peLow"))
+	}
+
+	search := stock.Search(param)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(search)

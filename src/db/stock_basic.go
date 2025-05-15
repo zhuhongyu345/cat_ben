@@ -70,100 +70,93 @@ func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
 	return resp, err
 }
 
-func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
+type SearchDto struct {
+	Name      string
+	ZclLow    float64
+	ZclHigh   float64
+	CjlLow    float64
+	CjlHigh   float64
+	HlHigh    float64
+	HlLow     float64
+	PeHigh    float64
+	PeLow     float64
+	Yield     float64
+	PriceLow  float64
+	PriceHigh float64
+	Liangbi   float64
+	Tpe       int
+	Skip      int
+	Size      int
+	Sort      string
+	SortType  string
+}
+
+func Search(dto *SearchDto) ([]*Sto, error) {
 	resp := make([]*Sto, 0)
 	debug := dbLite.Debug()
 	db := debug.Table("stock_basic").Where("1=1")
 
-	if name != "" {
-		err := db.Where("name=?", strings.ToUpper(name)).Find(&resp).Error
+	if dto.Name != "" {
+		err := db.Where("name=?", strings.ToUpper(dto.Name)).Find(&resp).Error
 		return resp, err
 	}
 
-	if tpe != "" {
-		if typeInt, err := strconv.ParseInt(tpe, 10, 64); err == nil {
-			if typeInt > 0 {
-				db = db.Where("type=?", typeInt)
-			} else {
-				db.Where("tag=?", 1)
-			}
+	if dto.Tpe != 0 {
+		if dto.Tpe > 0 {
+			db = db.Where("type=?", dto.Tpe)
+		} else {
+			db.Where("tag=?", 1)
 		}
 	}
-	if liangbi != "" {
-		if float, err := strconv.ParseFloat(liangbi, 64); err == nil {
-			db = db.Where("liangbi>?", float)
-		}
+	if dto.Liangbi != 0.0 {
+		db = db.Where("liangbi>?", dto.Liangbi)
 	}
-	if zclLow != "" {
-		if float, err := strconv.ParseFloat(zclLow, 64); err == nil {
-			db = db.Where("zcrate>=?", float)
-		}
+	if dto.ZclLow != 0.0 {
+		db = db.Where("zcrate>=?", dto.ZclLow)
 	}
-	if zclHigh != "" {
-		if float, err := strconv.ParseFloat(zclHigh, 64); err == nil {
-			db = db.Where("zcrate<=?", float)
-		}
+	if dto.ZclHigh != 0.0 {
+		db = db.Where("zcrate<=?", dto.ZclHigh)
 	}
-	if cjlLow != "" {
-		if float, err := strconv.ParseFloat(cjlLow, 64); err == nil {
-			db = db.Where("cjlrateday>=?", float)
-		}
+	if dto.CjlLow != 0.0 {
+		db = db.Where("cjlrateday>=?", dto.CjlLow)
 	}
-	if cjlHigh != "" {
-		if float, err := strconv.ParseFloat(cjlHigh, 64); err == nil {
-			db = db.Where("cjlrateday<=?", float)
-		}
+	if dto.CjlHigh != 0.0 {
+		db = db.Where("cjlrateday<=?", dto.CjlHigh)
 	}
-	if hlLow != "" {
-		if float, err := strconv.ParseFloat(hlLow, 64); err == nil {
-			db = db.Where("hl>=?", float)
-		}
+	if dto.HlLow != 0.0 {
+		db = db.Where("hl>=?", dto.HlLow)
 	}
-	if hlHigh != "" {
-		if float, err := strconv.ParseFloat(hlHigh, 64); err == nil {
-			db = db.Where("hl<=?", float)
-		}
+	if dto.HlHigh != 0.0 {
+		db = db.Where("hl<=?", dto.HlHigh)
 	}
-	if peHigh != "" {
-		if float, err := strconv.ParseFloat(peHigh, 64); err == nil {
-			db = db.Where("pe<=?", float)
-		}
+	if dto.PeHigh != 0.0 {
+		db = db.Where("pe<=?", dto.PeHigh)
 	}
-	if peLow != "" {
-		if float, err := strconv.ParseFloat(peLow, 64); err == nil {
-			db = db.Where("pe>=?", float)
-		}
+	if dto.PeLow != -10000 {
+		db = db.Where("pe>=?", dto.PeLow)
 	}
-	if yield != "" {
-		if float, err := strconv.ParseFloat(yield, 64); err == nil {
-			db = db.Where("yield>=?", float)
-		}
+	if dto.Yield != 0.0 {
+		db = db.Where("yield>=?", dto.Yield)
 	}
-	if priceLow != "" {
-		if float, err := strconv.ParseFloat(priceLow, 64); err == nil {
-			db = db.Where("price>=?", float)
-		}
+	if dto.PriceLow != 0.0 {
+		db = db.Where("price>=?", dto.PriceLow)
 	}
-	if priceHigh != "" {
-		if float, err := strconv.ParseFloat(priceHigh, 64); err == nil {
-			db = db.Where("price<=?", float)
-		}
+	if dto.PriceHigh != 0.0 {
+		db = db.Where("price<=?", dto.PriceHigh)
 	}
 
-	if sort != "" {
-		if sortType == "desc" {
-			db = db.Order(fmt.Sprintf("%s %s", sort, "desc"))
+	if dto.Sort != "" {
+		if dto.SortType == "desc" {
+			db = db.Order(fmt.Sprintf("%s %s", dto.Sort, "desc"))
 		} else {
-			db = db.Order(fmt.Sprintf("%s %s", sort, "asc"))
+			db = db.Order(fmt.Sprintf("%s %s", dto.Sort, "asc"))
 		}
 	}
-	if size != "" {
-		parseInt, _ := strconv.ParseInt(size, 10, 64)
-		db = db.Limit(int(parseInt))
+	if dto.Size != 0 {
+		db = db.Limit(dto.Size)
 	}
-	if skip != "" {
-		parseInt, _ := strconv.ParseInt(skip, 10, 64)
-		db = db.Offset(int(parseInt))
+	if dto.Skip != 0 {
+		db = db.Offset(dto.Skip)
 	}
 	err := db.Find(&resp).Error
 	return resp, err

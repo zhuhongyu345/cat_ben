@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHight, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) []*db.Sto {
-	stocks, err := db.Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHight, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType)
+func Search(param *db.SearchDto) []*db.Sto {
+	stocks, err := db.Search(param)
 	if err != nil {
 		log.Printf("db.Search err:%s", err)
 	}
