@@ -5,7 +5,6 @@ import (
 	"cat_ben/src/option"
 	"cat_ben/src/stock"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -48,25 +47,25 @@ func TagServer(w http.ResponseWriter, r *http.Request) {
 	_ = json.NewEncoder(w).Encode("success")
 }
 
-func ConfigServer(w http.ResponseWriter, r *http.Request) {
+func ConfigQueryServer(w http.ResponseWriter, r *http.Request) {
 	log.Printf("ConfigServer")
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	respData := `success`
+	w.Header().Set("Content-Type", "application/json")
+	kv, err := db.SelectAllKV()
+	log.Printf("ConfigServer:%v", kv)
+	if err != nil {
+		_ = json.NewEncoder(w).Encode(`[]`)
+	}
+	_ = json.NewEncoder(w).Encode(kv)
 
-	rd := r.FormValue("rd")
+}
+func ConfigUpdateServer(w http.ResponseWriter, r *http.Request) {
+	log.Printf("ConfigServer")
+	w.Header().Add("Access-Control-Allow-Origin", "*")
 	key := r.FormValue("key")
-	value := r.FormValue("value")
-	if rd == "read" {
-		resp, _ := db.GetValue(key)
-		respData = fmt.Sprintf(`{"key":"%s","value":"%s"}`, key, resp)
-	}
-	if rd == "write" {
-		_ = db.UpdateValue(key, value)
-		respData = fmt.Sprintf(`{"key":"%s","value":"%s"}`, key, value)
-	}
-	log.Printf("ConfigServer:" + respData)
-	_ = json.NewEncoder(w).Encode(respData)
-
+	val := r.FormValue("val")
+	_ = db.UpdateValue(key, val)
+	_ = json.NewEncoder(w).Encode("success")
 }
 
 func HistoryServer(w http.ResponseWriter, r *http.Request) {

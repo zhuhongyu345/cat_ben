@@ -9,7 +9,6 @@ import (
 )
 
 func main() {
-
 	//task
 	go server.FlushTask()
 
@@ -25,7 +24,8 @@ func main() {
 	mux.Handle("/deleteOne", http.HandlerFunc(server.DeleteServer))
 	mux.Handle("/addOne", http.HandlerFunc(server.AddServer))
 	mux.Handle("/tagOne", http.HandlerFunc(server.TagServer))
-	mux.Handle("/config", http.HandlerFunc(server.ConfigServer))
+	mux.Handle("/configQuery", http.HandlerFunc(server.ConfigQueryServer))
+	mux.Handle("/configUpdate", http.HandlerFunc(server.ConfigUpdateServer))
 	log.Printf("start listen:%d", config.Config.Port)
 	err := http.ListenAndServe(":"+strconv.Itoa(config.Config.Port), mux)
 	if err != nil {
