@@ -24,28 +24,9 @@ type NyseUnit struct {
 }
 
 func allStockToDB() {
-	serverURL := "https://www.nyse.com/api/quotes/filter"
-	pageSize := 50000
-	param := map[string]interface{}{
-		"pageNumber":        1,
-		"sortColumn":        "NORMALIZED_TICKER",
-		"sortOrder":         "ASC",
-		"maxResultsPerPage": pageSize,
-	}
-	header, err := bizcall.PostJSONWithHeader(context.TODO(), serverURL, param, nil)
-	if err != nil {
-		log.Printf("%s", err)
-	}
-	log.Printf("%s", header)
-	page := make([]*NyseUnit, 0)
-	_ = json.Unmarshal(header, &page)
-	stos := make([]*db.Sto, 0)
-	param["pageNumber"] = 1
-	resp, _ := bizcall.PostJSONWithHeader(context.TODO(), serverURL, param, nil)
-	temp := make([]*NyseUnit, 0)
-	_ = json.Unmarshal(resp, &temp)
+	temp := GetFromNyse("")
 	unknown := make([]string, 0)
-
+	stos := make([]*db.Sto, 0)
 	for _, t := range temp {
 		if strings.Contains(t.NormalizedTicker, ".") || strings.Contains(t.NormalizedTicker, ":") {
 			continue
@@ -84,4 +65,22 @@ func allStockToDB() {
 	}
 
 	time.Sleep(time.Second * 10)
+}
+
+func GetFromNyse(name string) []*NyseUnit {
+	serverURL := "https://www.nyse.com/api/quotes/filter"
+	pageSize := 50000
+	param := map[string]interface{}{
+		"pageNumber":        1,
+		"sortColumn":        "NORMALIZED_TICKER",
+		"sortOrder":         "ASC",
+		"maxResultsPerPage": pageSize,
+	}
+	if name != "" {
+		param["filterToken"] = name
+	}
+	resp, _ := bizcall.PostJSONWithHeader(context.TODO(), serverURL, param, nil)
+	temp := make([]*NyseUnit, 0)
+	_ = json.Unmarshal(resp, &temp)
+	return temp
 }

@@ -44,7 +44,11 @@ func DeleteStoById(id int64) error {
 	err := dbLite.Debug().Table("stock_basic").Where("id=?", id).Delete(new(Sto)).Error
 	return err
 }
-
+func SelectStoByName(name string) (*Sto, error) {
+	var sto Sto
+	err := dbLite.Table("stock_basic").Where("name=?", name).Find(&sto).Error
+	return &sto, err
+}
 func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
 	resp := make([]*Sto, 0)
 	query := dbLite.Debug().Table("stock_basic").Where("1=1")

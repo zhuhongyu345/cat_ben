@@ -15,14 +15,21 @@ func AddServer(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("name")
 	tpe := r.FormValue("type")
 	i, _ := strconv.Atoi(tpe)
-	stos := make([]*db.Sto, 0)
-	stos = append(stos, &db.Sto{
+	sto := &db.Sto{
 		Name: name,
 		Type: i,
 		TAG:  1,
-	})
-	_ = db.CreateStos(stos)
-	stock.FlushBasic("1", "-1")
+	}
+	nyse := stock.GetFromNyse(name)
+	if len(nyse) > 0 {
+		sto.Mic = nyse[0].MicCode
+	}
+	byName, _ := db.SelectStoByName(name)
+	if byName != nil {
+		sto = byName
+	}
+	_ = db.CreateStos([]*db.Sto{sto})
+	stock.FlushOne(sto)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	_ = json.NewEncoder(w).Encode("success")
 	return
