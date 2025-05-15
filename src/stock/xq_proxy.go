@@ -5,7 +5,6 @@ import (
 	"cat_ben/src/pkg/bizcall"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"time"
@@ -81,33 +80,23 @@ type Quote struct {
 	Open                float64     `json:"open"`
 }
 
-func getDetailFromXQ(name string) (float64, float64, string, float64, float64, float64, float64, float64, float64, error) {
+func getDetailFromXQ(name string) (*JSONDataXueQiuBasic, error) {
 	token, _ := db.GetValue("xueqiu_token")
 	header := map[string]string{
 		"cookie":     token,
 		"user-agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/100.0.4896.127 Safari/537.36",
 	}
-	resp, err := bizcall.GetJSONWithHeader(context.Background(), fmt.Sprintf("https://stock.xueqiu.com/v5/stock/quote.json?symbol=%s&extend=detail", name), header)
+	url := fmt.Sprintf("https://stock.xueqiu.com/v5/stock/quote.json?symbol=%s&extend=detail", name)
+	resp, err := bizcall.GetJSONWithHeader(context.Background(), url, header)
 	if err != nil {
 		log.Println(err)
-		return 0, 0, "", 0, 0, 0, 0, 0, 0, err
+		return nil, err
 	}
 	var respXQ JSONDataXueQiuBasic
-	_ = json.Unmarshal(resp, &respXQ)
+	err = json.Unmarshal(resp, &respXQ)
 	log.Println(respXQ)
-	ttm := respXQ.Data.Quote.PeTtm
-	yield := respXQ.Data.Quote.DividendYield
-	nameCHN := respXQ.Data.Quote.Name
-	price := respXQ.Data.Quote.Current
-	h52 := respXQ.Data.Quote.High52W
-	l52 := respXQ.Data.Quote.Low52W
-	liangbi := respXQ.Data.Quote.VolumeRatio
-	shizhi := (respXQ.Data.Quote.MarketCapital) / float64(100000000)
-	huanshou := respXQ.Data.Quote.TurnoverRate
-	if price == 0 {
-		return 0, 0, "", 0, 0, 0, 0, 0, 0, errors.New("price err")
-	}
-	return ttm, yield, nameCHN, price, h52, l52, liangbi, shizhi, huanshou, nil
+	return &respXQ, err
+
 }
 
 // 这段代码是获取日 周级别k线的代码

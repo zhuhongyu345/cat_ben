@@ -12,7 +12,7 @@ import (
 )
 
 func AddServer(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("name")
+	name := strings.ToUpper(r.FormValue("name"))
 	tpe := r.FormValue("type")
 	i, _ := strconv.Atoi(tpe)
 	sto := &db.Sto{
@@ -25,7 +25,7 @@ func AddServer(w http.ResponseWriter, r *http.Request) {
 		sto.Mic = nyse[0].MicCode
 	}
 	byName, _ := db.SelectStoByName(name)
-	if byName != nil {
+	if byName != nil && byName.Name != "" {
 		sto = byName
 	} else {
 		_ = db.CreateStos([]*db.Sto{sto})

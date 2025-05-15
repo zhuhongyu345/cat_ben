@@ -5,6 +5,7 @@ import (
 	"log"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -52,49 +53,71 @@ func FlushBasic(hard string, tpe string) {
 }
 
 func FlushOne(stock *db.Sto) {
-	pe, yield, chn, price, h52, l52, liangbi, shizhi, huanshoulv, err := getDetailFromXQ(stock.Name)
+	if strings.Contains(stock.Name, ":") || strings.Contains(stock.Name, "-") || strings.Contains(stock.Name, "p") {
+		_ = db.DeleteStoById(stock.ID)
+		log.Println("delete one stock:" + stock.Name)
+		return
+	}
+	basic, err := getWBBasic(stock.Name, stock.Mic)
+
+	//respXQ, err := getDetailFromXQ(stock.Name)
 	if err != nil {
 		return
 	}
-	hl := (price - l52) / (h52 - l52)
-	if h52 == l52 {
+
+	stock.PE = getFloat(basic.PeTtm)
+	stock.Yield = getFloat(basic.Yield)
+	stock.CHN = basic.Name
+	stock.Price = getFloat(basic.Close)
+	stock.H52 = getFloat(basic.FiftyTwoWkHigh)
+	stock.L52 = getFloat(basic.FiftyTwoWkLow)
+	stock.Lb = getFloat(basic.VibrateRatio)
+	stock.Sz = getFloat(basic.MarketValue) / float64(100000000)
+	stock.Hsl = getFloat(basic.TurnoverRate)
+	stock.CB = basic.EstimateEarningsDate
+	stock.PEF = getFloat(basic.ForwardPe)
+
+	if err != nil {
+		return
+	}
+	hl := (stock.Price - stock.L52) / (stock.H52 - stock.L52)
+	if stock.H52 == stock.L52 {
 		hl = 1
 	}
-	hl = math.Round(hl*10000) / 10000
+	stock.Hl = math.Round(hl*10000) / 10000
 	kData, cjl, _ := getKlineFromXQ(stock.Name, "day", 69)
 	if len(kData) > 0 {
 		ts := kData[len(kData)-1].Ts / 1000
 		if time.Now().Unix()-ts > 86400*30 && ts > 0 {
-			err := db.DeleteStoById(stock.ID)
-			if err != nil {
-				log.Printf("delete one stock err,%s:%s", stock.Name, err)
-			}
+			_ = db.DeleteStoById(stock.ID)
 			log.Println("delete one stock:" + stock.Name)
 			return
 		}
 	}
-
-	zcl := getZhicheng(kData, 0.009)
+	stock.CjlD = math.Round(cjl*1000) / 1000
+	acl := getZhicheng(kData, 0.009)
+	stock.ZCL = math.Round(acl*10000) / 10000
 	kDataW, _, _ := getKlineFromXQ(stock.Name, "week", 159)
 	zcw := getZhicheng(kDataW, 0.012)
+	stock.ZCW = math.Round(zcw*10000) / 10000
 
-	err = db.UpdateByID(stock.ID, pe, yield, chn, price, h52, l52, hl, liangbi, shizhi, huanshoulv, cjl, zcl, zcw)
+	err = db.UpdateStoById(stock)
 	if err != nil {
 		log.Println(err)
 	}
-	if stock.Type == 2 {
-		return
-	}
-	go func() {
-		basic, err := getWBBasic(stock.Name, stock.Mic)
-		if err != nil {
-			log.Printf("wb basic err:%s,%s", stock.Name, err)
-		}
-		float, _ := strconv.ParseFloat(basic.ForwardPe, 64)
-		_ = db.UpdateStoById(&db.Sto{
-			ID:     stock.ID,
-			Caibao: basic.EstimateEarningsDate,
-			PEF:    float,
-		})
-	}()
+	//if stock.Type == 2 {
+	//	return
+	//}
+	//go func() {
+	//	basic, err := getWBBasic(stock.Name, stock.Mic)
+	//	if err != nil {
+	//		log.Printf("wb basic err:%s,%s", stock.Name, err)
+	//	}
+	//	float, _ := strconv.ParseFloat(basic.ForwardPe, 64)
+	//	_ = db.UpdateStoById(&db.Sto{
+	//		ID:     stock.ID,
+	//		Caibao: basic.EstimateEarningsDate,
+	//		PEF:    float,
+	//	})
+	//}()
 }
