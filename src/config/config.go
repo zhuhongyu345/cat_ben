@@ -31,9 +31,9 @@ func init() {
 
 func loadConfig() {
 	cwd, _ := os.Getwd()
-	file, err := os.ReadFile(filepath.Join(cwd, "config.json"))
+	file, err := os.ReadFile(filepath.Join(cwd, "D:/workplace/cat_ben/localConfig.json"))
 	if err != nil {
-		file, err = os.ReadFile(filepath.Join(cwd, "D:/workplace/cat_ben/localConfig.json"))
+		file, err = os.ReadFile(filepath.Join(cwd, "config.json"))
 		if err != nil {
 			panic("config.json missing")
 		}
