@@ -30,9 +30,16 @@ func getSleep() int {
 	return sleep
 }
 
+var doing = false
+
 func FlushBasic(hard string, tpe string) {
+	if doing {
+		return
+	}
+	doing = true
 	log.Println("flush start")
 	defer func() {
+		doing = false
 		if r := recover(); r != nil {
 			log.Println("recover:", r)
 		}
