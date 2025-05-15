@@ -56,6 +56,8 @@
                 success: function (result) {
                     console.log(result)
                     viewData(result, p)
+                    $("#pef").html(result.basic.PEF)
+                    $("#cb").html(result.basic.CB)
                 }
             });
         }
@@ -68,7 +70,6 @@
             });
 
             var option;
-
             option = {
                 xAxis: {
                     type: 'category',
@@ -131,14 +132,20 @@
                         <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01"
                                id="search"/>
                     </div>
+                    <div style="margin-left: 0px;">
+                        <label>预期下次</label>
+                        <label id="cb">2025-01-01</label>
+                        <label id="pef">33</label>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="ui_content">
-            <div class="ui_tb" id="container" style="height: 600px;margin-top: 29px;">
-
+        <tr>
+            <div class="ui_content">
+                <div class="ui_tb" id="container" style="height: 600px;margin-top: 29px;">
+                </div>
             </div>
-        </div>
+        </tr>
     </div>
 </form>
 </body>

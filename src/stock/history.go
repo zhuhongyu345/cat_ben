@@ -2,19 +2,10 @@ package stock
 
 import (
 	"cat_ben/src/db"
-	"log"
 	"math"
 	"strconv"
 	"time"
 )
-
-func Search(param *db.SearchDto) []*db.Sto {
-	stocks, err := db.Search(param)
-	if err != nil {
-		log.Printf("db.Search err:%s", err)
-	}
-	return stocks
-}
 
 func GetHistory(name string, period string, count string) map[string]interface{} {
 	count64, _ := strconv.ParseInt(count, 10, 64)
@@ -27,10 +18,11 @@ func GetHistory(name string, period string, count string) map[string]interface{}
 		pes = append(pes, math.Round(v.Pe*10000)/10000)
 		prices = append(prices, math.Round(v.Close*10000)/10000)
 	}
+	byName, _ := db.SelectStoByName(name)
 	resp := make(map[string]interface{})
+	resp["basic"] = byName
 	resp["pes"] = pes
 	resp["prices"] = prices
 	resp["times"] = times
 	return resp
-
 }

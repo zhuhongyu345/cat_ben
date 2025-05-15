@@ -121,3 +121,10 @@ func FlushOne(stock *db.Sto) {
 	//	})
 	//}()
 }
+func Search(param *db.SearchDto) []*db.Sto {
+	stocks, err := db.Search(param)
+	if err != nil {
+		log.Printf("db.Search err:%s", err)
+	}
+	return stocks
+}
