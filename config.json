@@ -4,6 +4,11 @@
   "chromeHeadless": true,
   "staticPath": "D:/workplace/cat_ben/src/static",
   "port": 9345,
+
+  "emailFrom": "imac789@163.com",
+  "emailTo": "imac789@163.com",
+  "emailAuth": "",
+
   "logFile": true,
   "debug": true
 }

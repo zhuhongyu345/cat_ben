@@ -9,13 +9,16 @@ import (
 )
 
 type jsonConfig struct {
-	DbPath   string `json:"dbPath"`
-	Chrome   string `json:"chromePath"`
-	Headless bool   `json:"chromeHeadless"`
-	Static   string `json:"staticPath"`
-	Port     int    `json:"port"`
-	Debug    bool   `json:"debug"`
-	LogFile  bool   `json:"logFile"`
+	DbPath    string `json:"dbPath"`
+	Chrome    string `json:"chromePath"`
+	Headless  bool   `json:"chromeHeadless"`
+	Static    string `json:"staticPath"`
+	EmailFrom string `json:"emailFrom"`
+	EmailTo   string `json:"emailTo"`
+	EmailAuth string `json:"emailAuth"`
+	Port      int    `json:"port"`
+	Debug     bool   `json:"debug"`
+	LogFile   bool   `json:"logFile"`
 }
 
 var Config jsonConfig
@@ -32,7 +35,10 @@ func loadConfig() {
 	if err != nil {
 		file, err = os.ReadFile(filepath.Join(cwd, "../../config.json"))
 		if err != nil {
-			panic("config.json missing")
+			file, err = os.ReadFile(filepath.Join(cwd, "../../../config.json"))
+			if err != nil {
+				panic("config.json missing")
+			}
 		}
 	}
 	err = json.Unmarshal(file, &Config)
