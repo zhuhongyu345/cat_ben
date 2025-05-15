@@ -2,7 +2,6 @@ package option
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -17,18 +16,16 @@ func TestGetOptionChainHttp(t *testing.T) {
 			id := r.URL.Query().Get("id")
 			atoi, err := strconv.ParseInt(id, 10, 64)
 			if err != nil {
-				fmt.Fprintf(w, `{}`)
+				_ = json.NewEncoder(w).Encode(`{}`)
 				return
 			}
 			chain := GetOptionChain(atoi)
-			marshal, _ := json.Marshal(chain)
 			log.Printf("resp:%s", id)
 			w.Header().Add("Access-Control-Allow-Origin", "*")
-			fmt.Fprintf(w, string(marshal))
-			return
+			_ = json.NewEncoder(w).Encode(chain)
 		}),
 	}
-	server.ListenAndServe()
+	_ = server.ListenAndServe()
 }
 
 func TestGetOptionChain(t *testing.T) {

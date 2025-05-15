@@ -1,0 +1,9 @@
+{
+  "dbPath": "D:/workplace/cat_ben/sqllite3.db",
+  "chromePath": "c:/chromedriver/chromedriver.exe",
+  "chromeHeadless": true,
+  "staticPath": "D:/workplace/cat_ben/src/static",
+  "port": 9345,
+  "logFile": true,
+  "debug": true
+}

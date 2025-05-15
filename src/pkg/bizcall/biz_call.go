@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"net/url"
@@ -28,7 +28,7 @@ func PostFormWithHeader(ctx context.Context, url string, info url.Values, header
 		return nil, err
 	}
 	defer resp.Body.Close()
-	respByte, _ := ioutil.ReadAll(resp.Body)
+	respByte, _ := io.ReadAll(resp.Body)
 	log.Printf("post form %s req:%s, header:%s, resp:%s", url, info.Encode(), header, string(respByte))
 	return respByte, nil
 }
@@ -48,7 +48,7 @@ func PostJSONWithHeader(ctx context.Context, url string, info interface{}, heade
 		return nil, err
 	}
 	defer resp.Body.Close()
-	respByte, _ := ioutil.ReadAll(resp.Body)
+	respByte, _ := io.ReadAll(resp.Body)
 	//logs.CtxInfo(ctx, "post json %s req:%s, header:%s, resp:%s", url, string(msg), header, string(respByte))
 	return respByte, nil
 }
@@ -67,7 +67,7 @@ func GetJSONWithHeader(ctx context.Context, url string, header map[string]string
 		return nil, err
 	}
 	defer resp.Body.Close()
-	respByte, _ := ioutil.ReadAll(resp.Body)
+	respByte, _ := io.ReadAll(resp.Body)
 	//log.Printf("get json %s, header:%s, resp:%s", url, header, string(respByte))
 	return respByte, nil
 }

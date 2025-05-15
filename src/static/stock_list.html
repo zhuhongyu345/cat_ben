@@ -3,11 +3,11 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script type="text/javascript" src="scripts/jquery/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="config.js"></script>
     <link href="style/authority/basic_layout.css" rel="stylesheet" type="text/css">
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
     <title>stock</title>
     <script type="text/javascript">
-        var hostC = 'http://82.156.244.4:80'
         $(document).ready(function () {
 
 
@@ -39,11 +39,31 @@
             $("#search").click(function () {
                 search();
             });
+            $("#addOne").click(function () {
+                addOne();
+            });
             search();
         });
-        function deleteOne(){
-            $("input:checkbox").each(function (){
-                if ($(this).is(':checked')){
+
+        function addOne() {
+            $.ajax({
+                type: "post",
+                url: hostC + "/addOne",
+                data: {
+                    name: $("#name").val(),
+                    type: $("#type").val(),
+                },
+                success: function (result) {
+                    console.log("flush")
+                    console.log(result)
+                }
+            });
+            search()
+        }
+
+        function deleteOne() {
+            $("input:checkbox").each(function () {
+                if ($(this).is(':checked')) {
                     checkedValue = $(this).val()
                     console.log(checkedValue)
                     $.ajax({
@@ -59,9 +79,10 @@
             })
             search()
         }
-        function changeTag(yn){
-            $("input:checkbox").each(function (){
-                if ($(this).is(':checked')){
+
+        function changeTag(yn) {
+            $("input:checkbox").each(function () {
+                if ($(this).is(':checked')) {
                     checkedValue = $(this).val()
                     console.log(checkedValue)
                     $.ajax({
@@ -80,7 +101,8 @@
                 }
             })
         }
-        function flush(hard){
+
+        function flush(hard) {
             $.ajax({
                 type: "post",
                 url: hostC + "/flush",
@@ -94,6 +116,7 @@
                 }
             });
         }
+
         function search() {
             req = {
                 size: $("#size").val(),
@@ -123,54 +146,73 @@
                 url: hostC + "/search",
                 data: req,
                 success: function (result) {
-                    res = JSON.parse(result)
+                    // res = JSON.parse(result)
                     tableBody = '';
                     totc = 0
-                    for (var i in res) {
+                    for (var i in result) {
                         totc++
-                        d = res[i];
-                        t = "未知";
+                        d = result[i];
+                        t = "UNKNOWN";
                         bdType = "us-"
                         ftType = "-US"
                         if (d.Type == 2) {
-                            t = '美股ETF';
-                        }else if (d.Type == 1){
-                            t = '美股股票';
-                        }else if (d.Type == 3){
-                            t = 'A股股票';
+                            t = 'USE';
+                        } else if (d.Type == 1) {
+                            t = 'USS';
+                        } else if (d.Type == 3) {
+                            t = 'CNS';
                             bdType = "ab-"
                             ftType = "-SH"
                         }
                         link = "https://xueqiu.com/S/" + d.Name
-                        linkbd = "https://gushitong.baidu.com/stock/" +bdType+ d.Name
+                        linkbd = "https://gushitong.baidu.com/stock/" + bdType + d.Name
                         linkft = "https://www.futunn.com/stock/" + d.Name + ftType
-                        linkHistory = "./pe_history.html?name=" + d.Name
+                        linkHistory = "./pe_history.html?name=" + d.Name+"&auto"
+                        linkwn = "https://www.webull.com.sg/ticker/nasdaq-" + d.Name
+                        linkwn2 = "https://www.webull.com.sg/ticker/nyse-" + d.Name
+
+
+                        linkwn = "";
+                        wbbasic = "https://www.webull.hk/quote/";
+                        // wbbasic = "https://www.webull.com.sg/ticker/";
+                        var mic = d.Mic;
+                        if (mic == "XNYS") {
+                            linkwn = wbbasic + "nyse-" + d.Name
+                        } else if (mic == "XNCM" || mic == "XNGS" || mic == "XNMS") {
+                            linkwn = wbbasic + "nasdaq-" + d.Name
+                        } else if (mic == "XASE") {
+                            linkwn = wbbasic + "AMEX-" + d.Name
+                        } else if (mic == "ARCX") {
+                            linkwn = wbbasic + "NYSEARCA-" + d.Name
+                        } else {
+                            linkwn = wbbasic + +mic + "-" + d.Name
+                        }
+
+
                         tableBody += '<tr>' +
-                            '<td><input type="checkbox" name="IDCheck" value="'+d.ID+'" class="acb"/></td>' +
+                            '<td><input type="checkbox" name="IDCheck" value="' + d.ID + '" class="acb"/></td>' +
                             '<td>' + d.ID + '</td>' +
                             '<td>' + d.Name + '</td>' +
                             '<td>' + d.CHN + '</td>' +
                             '<td>' + t + '</td>' +
                             '<td>' + d.PE + '</td>' +
                             '<td>' + d.Yield + '</td>' +
-                            // '<td>' + d.Sz + '</td>' +
                             '<td>' + d.Price + '</td>' +
-                            // '<td>' + d.Hsl + '</td>' +
-                            // '<td>' + d.Lb + '</td>' +
-                            // '<td>' + d.L52 + '</td>' +
-                            // '<td>' + d.H52 + '</td>' +
+                            '<td>' + d.PEF + '</td>' +
                             '<td>' + d.Hl + '</td>' +
                             '<td>' + d.CjlD + '</td>' +
                             '<td>' + d.ZCL + '</td>' +
                             '<td>' + d.ZCW + '</td>' +
+                            '<td>' + d.CB + '</td>' +
                             '<td>' + d.Up + '</td>' +
                             '<td>' +
-                            '<a target="_blank" href="' + linkHistory + '" class="edit">详情</a>' +
+                            '<a target="_blank" href="' + linkHistory + '" class="edit">GO</a>' +
                             '</td>' +
                             '<td>' +
-                            '<a target="_blank" href="' + linkft + '" class="edit">富途</a>' +
-                            '<a target="_blank" href="' + link + '" class="edit">雪球</a>' +
-                            '<a target="_blank" href="' + linkbd + '" class="edit">百度</a>' +
+                            '<a target="_blank" href="' + linkft + '" class="edit">F</a>' +
+                            '<a target="_blank" href="' + link + '" class="edit">X</a>' +
+                            '<a target="_blank" href="' + linkbd + '" class="edit">B</a>' +
+                            '<a target="_blank" href="' + linkwn + '" class="edit">W</a>' +
                             '</td>' +
                             '</tr>'
                     }
@@ -193,45 +235,46 @@
     <div id="container">
         <div class="">
             <div class="ui_text_indent">
-                <div id="box_border" style="height: 180px;">
-                    <div id="box_top">搜索</div>
+                <div id="box_border" style="height: 120px;">
+                    <div id="box_top">SEARCH</div>
                     <div id="box_center">
-                        代码<input type="text" id="name" style="width:60px;" class="ui_input_txt02"/>
-                        类型
+                        CODE<input type="text" id="name" style="width:60px;" class="ui_input_txt02"/>
+                        TYPE
                         <select class="ui_select01" style="width:85px;" id="type">
-                            <option value="">全部</option>
-                            <option value="-1">自选</option>
-                            <option value="1" selected>美股股票</option>
-                            <option value="2">美股ETF</option>
-                            <option value="3">A股股票</option>
+                            <option value="">ALL</option>
+                            <option value="-1">SELF</option>
+                            <option value="1" selected>USS</option>
+                            <option value="2">USE</option>
+                            <option value="3">CNS</option>
                         </select>
-                        &nbsp;&nbsp;高低位<input type="text" id="hlLow" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;L_H<input type="text" id="hlLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="hlHigh" style="width:60px;" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;市盈率<input type="text" value="0" id="peLow" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;PE<input type="text" value="0" id="peLow" style="width:60px;"
+                                             class="ui_input_txt02"/>
                         -<input type="text" id="peHigh" style="width:60px;" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;股息率<input type="text" id="yield" style="width:60px;" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;量比<input type="text" id="liangbi" style="width:60px;" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;价格<input type="text" id="priceLow" style="width:60px;" class="ui_input_txt02"/>
+                        &nbsp;&nbsp;DIV<input type="text" id="yield" style="width:60px;" class="ui_input_txt02"/>
+                        <!--                        &nbsp;&nbsp;LB<input type="text" id="liangbi" style="width:60px;" class="ui_input_txt02"/>-->
+                        &nbsp;&nbsp;PRICE<input type="text" id="priceLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="priceHigh" style="width:60px;" class="ui_input_txt02"/>
-                         成交率<input type="text" id="cjlLow" style="width:60px;" class="ui_input_txt02"/>
-                        -<input type="text" id="cjlHigh" style="width:60px;" class="ui_input_txt02"/>
-                         支撑率<input type="text" id="zclLow" style="width:60px;" class="ui_input_txt02"/>
+                        <!--                         成交率<input type="text" id="cjlLow" style="width:60px;" class="ui_input_txt02"/>-->
+                        <!--                        -<input type="text" id="cjlHigh" style="width:60px;" class="ui_input_txt02"/>-->
+                        ZCD<input type="text" id="zclLow" style="width:60px;" class="ui_input_txt02"/>
                         -<input type="text" id="zclHigh" style="width:60px;" class="ui_input_txt02"/>
-                        &nbsp;&nbsp;排序方式
+                        &nbsp;&nbsp;ORDER
                         <select class="ui_select01" id="sort" style="width:80px;">
-                            <option value="id">默认ID</option>
-                            <option value="hl">高低位</option>
-                            <option value="pe">市盈率</option>
-                            <option value="yield">股息率</option>
-                            <option value="liangbi">量比</option>
-                            <option value="price">价格</option>
-                            <option value="cjlrateday">成交率</option>
-                            <option value="zcrate">支撑率</option>
-                            <option value="zcweek" selected>周支撑率</option>
+                            <option value="id">ID</option>
+                            <option value="hl">LorH</option>
+                            <option value="pe">PE</option>
+                            <option value="yield">DIV</option>
+                            <option value="liangbi">LB</option>
+                            <option value="price">PRICE</option>
+                            <option value="cjlrateday">CJ</option>
+                            <option value="zcrate">ZC_D</option>
+                            <option value="zcweek" selected>ZC_W</option>
                         </select>
                         <select class="ui_select01" id="sortType" style="width:50px;">
-                            <option value="asc">正序</option>
-                            <option value="desc">倒序</option>
+                            <option value="asc">ASC</option>
+                            <option value="desc" selected>DESC</option>
                         </select>
                         skip
                         <input type="text" id="skip" class="ui_input_txt02" style="width:50px;"/>
@@ -240,13 +283,21 @@
 
 
                     </div>
-                    <div id="box_bottom" style="margin-top: 50px;">
-                        <input type="button" style="background-color: limegreen" value="加自选" class="ui_input_btn01" id="addTag"/>
-                        <input type="button" style="background-color: mediumvioletred" value="去自选" class="ui_input_btn01" id="delTag"/>
-                        <input type="button" style="background-color: palevioletred" value="强制刷新" class="ui_input_btn01" id="flushHard"/>
-                        <input type="button" style="background-color: darkred" value="删除所选" class="ui_input_btn01" id="deleteSome"/>
-                        <input type="button" style="background-color: limegreen" value="刷新" class="ui_input_btn01" id="flush"/>
-                        <input type="button" style="background-color: limegreen" value="查询" class="ui_input_btn01" id="search"/>
+                    <div id="box_bottom" style="margin-top: 0px;">
+                        <input type="button" style="background-color: greenyellow" value="ADD-O" class="ui_input_btn01"
+                               id="addOne"/>
+                        <input type="button" style="background-color: limegreen" value="ADD-S" class="ui_input_btn01"
+                               id="addTag"/>
+                        <input type="button" style="background-color: mediumvioletred" value="DEL-S"
+                               class="ui_input_btn01" id="delTag"/>
+                        <input type="button" style="background-color: palevioletred" value="FLU-H"
+                               class="ui_input_btn01" id="flushHard"/>
+                        <input type="button" style="background-color: darkred" value="DEL" class="ui_input_btn01"
+                               id="deleteSome"/>
+                        <input type="button" style="background-color: limegreen" value="FLU" class="ui_input_btn01"
+                               id="flush"/>
+                        <input type="button" style="background-color: limegreen" value="Q" class="ui_input_btn01"
+                               id="search"/>
                     </div>
                 </div>
             </div>
@@ -258,24 +309,21 @@
                         <th width="30"><input type="checkbox" id="all" onclick="selectOrClearAllCheckbox(this);"/>
                         </th>
                         <th>ID</th>
-                        <th>代码</th>
-                        <th style="width:230px;">中文名</th>
-                        <th style="width:83px;">类型</th>
-                        <th>市盈率</th>
-                        <th>股息率</th>
-<!--                        <th>市值</th>-->
-                        <th>价格</th>
-<!--                        <th>换手率</th>-->
-<!--                        <th>量比</th>-->
-<!--                        <th>52L</th>-->
-<!--                        <th>52H</th>-->
-                        <th>高低位</th>
-                        <th>成交率</th>
-                        <th>支撑率</th>
-                        <th>周支撑率</th>
-                        <th>更新日期</th>
-                        <th style="width:39px;">历史</th>
-                        <th style="width:103px;">K线</th>
+                        <th>CODE</th>
+                        <th style="width:230px;">NAME</th>
+                        <th style="width:83px;">TYPE</th>
+                        <th>PE</th>
+                        <th>DIV</th>
+                        <th>PRICE</th>
+                        <th>PEF</th>
+                        <th>LorH</th>
+                        <th>BUY</th>
+                        <th>ZC_D</th>
+                        <th>ZC_W</th>
+                        <th>CB</th>
+                        <th>TIME</th>
+                        <th style="width:39px;">HPE</th>
+                        <th style="width:103px;">LINE</th>
                     </tr>
                     <tbody id="tableData"></tbody>
                 </table>

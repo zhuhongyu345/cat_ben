@@ -1,0 +1,5 @@
+!**/src/**/app.log
+!**/src/**/**/app.log
+
+*.log
+*.db

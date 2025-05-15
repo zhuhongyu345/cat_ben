@@ -3,54 +3,61 @@
 <header>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <script type="text/javascript" src="scripts/jquery/jquery-1.7.1.js"></script>
+    <script type="text/javascript" src="config.js"></script>
     <link href="style/authority/basic_layout.css" rel="stylesheet" type="text/css">
     <link href="style/authority/common_style.css" rel="stylesheet" type="text/css">
 
     <script type="text/javascript">
-        var hostC = 'http://82.156.244.4:80'
 
         $(document).ready(function () {
             initData();
-            $("#xqTokenUp").click(function () {
-                console.log('xqTokenUp');
-                req = {
-                    rd: "write",
-                    key: "xueqiu_token",
-                    value:$("#xqToken").val(),
-                };
-                console.log(req)
-                $.ajax({
-                    type: "post",
-                    url: hostC + "/config",
-                    data: req,
-                });
-            });
-
         });
-        function initData(){
+        $(document).on('click', '.click', function() {
+            k = $(this).closest('tr').find('label[class="key"]').html();
+            v = $(this).closest('tr').find('input[class="up"]').val();
+            console.log(k)
+            console.log(v)
             req = {
-                rd: "read",
-                key: "xueqiu_token",
-                value:""
+                key: k,
+                val: v
             };
             $.ajax({
                 type: "post",
-                url: hostC +"/config",
+                url: hostC + "/configUpdate",
                 data: req,
                 success: function (result) {
-                    res = JSON.parse(result)
-
-                    $("#xqToken").val(res.value)
+                    console.log(result);
+                    initData();
+                }
+            });
+        });
+        function initData() {
+            req = {
+                rd: "read",
+                key: "xueqiu_token",
+                value: ""
+            };
+            $.ajax({
+                type: "post",
+                url: hostC + "/configQuery",
+                data: req,
+                success: function (result) {
+                    console.log(result)
+                    var html = "";
+                    for (const idx in result) {
+                        i = result[idx];
+                        html += '<tr><td><label class="key" style="width: 100px;">' + i.Key + '</label></td><td><input id="'+i.Key+'" class="up" value="' + i.Value + '"  style="height:30px;width:600px;"></td><td><input type="button" value="更新" class="click ui_input_btn01" id="' + i.Key + '"/></td></tr>>';
+                    }
+                    $("#data").html(html)
                 }
             });
         }
-
     </script>
 </header>
 <body>
     <p><br></p>
-    <label for="xqToken">雪球token</label><textarea id="xqToken" style="height:150px;width:900px;"></textarea>
-    <input type="button" value="更新" class="ui_input_btn01" id="xqTokenUp"/>
+    <table id = "data"></table>
+
 </body>
 </html>
 

@@ -1,8 +1,8 @@
 package chromedriver
 
 import (
+	"cat_ben/src/config"
 	"cat_ben/src/db"
-	"fmt"
 	"github.com/tebeka/selenium"
 	"github.com/tebeka/selenium/chrome"
 	"log"
@@ -15,7 +15,8 @@ func GetTokenAndSave() {
 			log.Println("recover:", r)
 		}
 	}()
-	service, err := selenium.NewChromeDriverService("c:/chromedriver/chromedriver.exe", 2345)
+
+	service, err := selenium.NewChromeDriverService(config.Config.Chrome, 2345)
 	if err != nil {
 		log.Fatalf("启动 ChromeDriver 失败: %v", err)
 	}
@@ -25,14 +26,18 @@ func GetTokenAndSave() {
 	caps := selenium.Capabilities{
 		"browserName": "chrome",
 	}
+
+	args := []string{
+		"--no-sandbox",
+		"--disable-gpu",
+	}
+	if config.Config.Headless {
+		args = append(args, "--headless")
+	}
+
 	chromeCaps := chrome.Capabilities{
 		Path: "", // 留空表示使用默认 Chrome 路径
-		Args: []string{
-			//"--headless", // 无头模式
-			"--no-sandbox",
-			"--disable-gpu",
-			//"--window-size=1280,800",
-		},
+		Args: args,
 	}
 	caps.AddChrome(chromeCaps)
 	wd, err := selenium.NewRemote(caps, "http://localhost:2345/wd/hub")
@@ -56,16 +61,16 @@ func GetTokenAndSave() {
 		cookieStr += "="
 		cookieStr += cookie.Value
 		cookieStr += "; "
-		fmt.Printf("Cookie #%d:\n", i+1)
-		fmt.Printf("  Name:   %s\n", cookie.Name)
-		fmt.Printf("  Value:  %s\n", cookie.Value)
-		fmt.Printf("  Domain: %s\n", cookie.Domain)
-		fmt.Printf("  Path:   %s\n", cookie.Path)
-		fmt.Printf("  Expiry: %v\n", cookie.Expiry)
-		fmt.Printf("  Secure: %t\n", cookie.Secure)
-		fmt.Println("-----------------------")
+		log.Printf("Cookie #%d:\n", i+1)
+		log.Printf("  Name:   %s\n", cookie.Name)
+		log.Printf("  Value:  %s\n", cookie.Value)
+		log.Printf("  Domain: %s\n", cookie.Domain)
+		log.Printf("  Path:   %s\n", cookie.Path)
+		log.Printf("  Expiry: %v\n", cookie.Expiry)
+		log.Printf("  Secure: %t\n", cookie.Secure)
+		log.Println("-----------------------")
 	}
-	fmt.Println(cookieStr)
-	db.UpdateValue("xueqiu_token", cookieStr)
+	log.Println(cookieStr)
+	_ = db.UpdateValue("xueqiu_token", cookieStr)
 
 }

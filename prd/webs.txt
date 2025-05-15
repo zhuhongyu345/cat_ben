@@ -22,3 +22,6 @@ request接口是https://quotes-gw.webullfintech.com/api/quotes/ticker/getRealTim
 
 富途个股
 https://www.futunn.com/stock/AAPL-US
+
+
+go build -o main.exe main.go

@@ -11,10 +11,12 @@ import (
 type Sto struct {
 	ID    int64   `gorm:"column:id"`
 	Name  string  `gorm:"column:name"`
+	Mic   string  `gorm:"column:mic"`
 	Type  int     `gorm:"column:type"`
 	CHN   string  `gorm:"column:chn"`
 	Yield float64 `gorm:"column:yield"`
 	PE    float64 `gorm:"column:pe"`
+	PEF   float64 `gorm:"column:pef"`
 	Price float64 `gorm:"column:price"`
 	H52   float64 `gorm:"column:h52"`
 	L52   float64 `gorm:"column:l52"`
@@ -23,31 +25,33 @@ type Sto struct {
 	Sz    float64 `gorm:"column:shizhi"`
 	Hsl   float64 `gorm:"column:huanshoulv"`
 	Up    string  `gorm:"column:up"`
+	CB    string  `gorm:"column:caibao"`
 	CjlD  float64 `gorm:"column:cjlrateday"`
 	ZCL   float64 `gorm:"column:zcrate"`
 	ZCW   float64 `gorm:"column:zcweek"`
+	TAG   int     `gorm:"column:tag"`
 }
 
 func CreateStos(stos []*Sto) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	err := dbLite.Table("stock_basic").Create(stos).Error
 	return err
 }
 
-func DeleteStoById(id int64) error {
-	if dbLite == nil {
-		InitDb()
-	}
-	err := dbLite.Debug().Table("stock_basic").Where("id=?", id).Delete(new(Sto)).Error
+func DeleteALL() error {
+	err := dbLite.Debug().Exec("delete from `stock_basic`").Error
 	return err
 }
 
+func DeleteStoById(id int64) error {
+	err := dbLite.Debug().Table("stock_basic").Where("id=?", id).Delete(new(Sto)).Error
+	return err
+}
+func SelectStoByName(name string) (*Sto, error) {
+	var sto Sto
+	err := dbLite.Table("stock_basic").Where("name=?", name).Find(&sto).Error
+	return &sto, err
+}
 func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
-	if dbLite == nil {
-		InitDb()
-	}
 	resp := make([]*Sto, 0)
 	query := dbLite.Debug().Table("stock_basic").Where("1=1")
 	//A股刷新
@@ -68,112 +72,105 @@ func GetAllStockFromDB(hard string, tpe string) ([]*Sto, error) {
 	return resp, err
 }
 
-func Search(name, zclLow, zclHigh, cjlLow, cjlHigh, hlLow, hlHigh, peHigh, peLow, yield, priceLow, priceHigh, liangbi, tpe, skip, size, sort, sortType string) ([]*Sto, error) {
-	if dbLite == nil {
-		InitDb()
-	}
+type SearchDto struct {
+	Name      string
+	ZclLow    float64
+	ZclHigh   float64
+	CjlLow    float64
+	CjlHigh   float64
+	HlHigh    float64
+	HlLow     float64
+	PeHigh    float64
+	PeLow     float64
+	Yield     float64
+	PriceLow  float64
+	PriceHigh float64
+	Liangbi   float64
+	Tpe       int
+	Skip      int
+	Size      int
+	Sort      string
+	SortType  string
+}
+
+func Search(dto *SearchDto) ([]*Sto, error) {
 	resp := make([]*Sto, 0)
 	debug := dbLite.Debug()
 	db := debug.Table("stock_basic").Where("1=1")
 
-	if name != "" {
-		err := db.Where("name=?", strings.ToUpper(name)).Find(&resp).Error
+	if dto.Name != "" {
+		err := db.Where("name=?", strings.ToUpper(dto.Name)).Find(&resp).Error
 		return resp, err
 	}
 
-	if tpe != "" {
-		if typeInt, err := strconv.ParseInt(tpe, 10, 64); err == nil {
-			if typeInt > 0 {
-				db = db.Where("type=?", typeInt)
-			} else {
-				db.Where("tag=?", 1)
-			}
+	if dto.Tpe != 0 {
+		if dto.Tpe > 0 {
+			db = db.Where("type=?", dto.Tpe)
+		} else {
+			db.Where("tag=?", 1)
 		}
 	}
-	if liangbi != "" {
-		if float, err := strconv.ParseFloat(liangbi, 64); err == nil {
-			db = db.Where("liangbi>?", float)
-		}
+	if dto.Liangbi != 0.0 {
+		db = db.Where("liangbi>?", dto.Liangbi)
 	}
-	if zclLow != "" {
-		if float, err := strconv.ParseFloat(zclLow, 64); err == nil {
-			db = db.Where("zcrate>=?", float)
-		}
+	if dto.ZclLow != 0.0 {
+		db = db.Where("zcrate>=?", dto.ZclLow)
 	}
-	if zclHigh != "" {
-		if float, err := strconv.ParseFloat(zclHigh, 64); err == nil {
-			db = db.Where("zcrate<=?", float)
-		}
+	if dto.ZclHigh != 0.0 {
+		db = db.Where("zcrate<=?", dto.ZclHigh)
 	}
-	if cjlLow != "" {
-		if float, err := strconv.ParseFloat(cjlLow, 64); err == nil {
-			db = db.Where("cjlrateday>=?", float)
-		}
+	if dto.CjlLow != 0.0 {
+		db = db.Where("cjlrateday>=?", dto.CjlLow)
 	}
-	if cjlHigh != "" {
-		if float, err := strconv.ParseFloat(cjlHigh, 64); err == nil {
-			db = db.Where("cjlrateday<=?", float)
-		}
+	if dto.CjlHigh != 0.0 {
+		db = db.Where("cjlrateday<=?", dto.CjlHigh)
 	}
-	if hlLow != "" {
-		if float, err := strconv.ParseFloat(hlLow, 64); err == nil {
-			db = db.Where("hl>=?", float)
-		}
+	if dto.HlLow != 0.0 {
+		db = db.Where("hl>=?", dto.HlLow)
 	}
-	if hlHigh != "" {
-		if float, err := strconv.ParseFloat(hlHigh, 64); err == nil {
-			db = db.Where("hl<=?", float)
-		}
+	if dto.HlHigh != 0.0 {
+		db = db.Where("hl<=?", dto.HlHigh)
 	}
-	if peHigh != "" {
-		if float, err := strconv.ParseFloat(peHigh, 64); err == nil {
-			db = db.Where("pe<=?", float)
-		}
+	if dto.PeHigh != 0.0 {
+		db = db.Where("pe<=?", dto.PeHigh)
 	}
-	if peLow != "" {
-		if float, err := strconv.ParseFloat(peLow, 64); err == nil {
-			db = db.Where("pe>=?", float)
-		}
+	if dto.PeLow != -10000 {
+		db = db.Where("pe>=?", dto.PeLow)
 	}
-	if yield != "" {
-		if float, err := strconv.ParseFloat(yield, 64); err == nil {
-			db = db.Where("yield>=?", float)
-		}
+	if dto.Yield != 0.0 {
+		db = db.Where("yield>=?", dto.Yield)
 	}
-	if priceLow != "" {
-		if float, err := strconv.ParseFloat(priceLow, 64); err == nil {
-			db = db.Where("price>=?", float)
-		}
+	if dto.PriceLow != 0.0 {
+		db = db.Where("price>=?", dto.PriceLow)
 	}
-	if priceHigh != "" {
-		if float, err := strconv.ParseFloat(priceHigh, 64); err == nil {
-			db = db.Where("price<=?", float)
-		}
+	if dto.PriceHigh != 0.0 {
+		db = db.Where("price<=?", dto.PriceHigh)
 	}
 
-	if sort != "" {
-		if sortType == "desc" {
-			db = db.Order(fmt.Sprintf("%s %s", sort, "desc"))
+	if dto.Sort != "" {
+		if dto.SortType == "desc" {
+			db = db.Order(fmt.Sprintf("%s %s", dto.Sort, "desc"))
 		} else {
-			db = db.Order(fmt.Sprintf("%s %s", sort, "asc"))
+			db = db.Order(fmt.Sprintf("%s %s", dto.Sort, "asc"))
 		}
 	}
-	if size != "" {
-		parseInt, _ := strconv.ParseInt(size, 10, 64)
-		db = db.Limit(int(parseInt))
+	if dto.Size != 0 {
+		db = db.Limit(dto.Size)
 	}
-	if skip != "" {
-		parseInt, _ := strconv.ParseInt(skip, 10, 64)
-		db = db.Offset(int(parseInt))
+	if dto.Skip != 0 {
+		db = db.Offset(dto.Skip)
 	}
 	err := db.Find(&resp).Error
 	return resp, err
 }
 
+func UpdateStoById(sto *Sto) error {
+	sto.Up = time.Now().Format("2006-01-02")
+	err := dbLite.Table("stock_basic").Where("id=?", sto.ID).Updates(sto).Error
+	return err
+}
+
 func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, liangbi, shizhi, huanshoulv, cjlrateday, zcrate, zcweek float64) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	up := time.Now().Format("2006-01-02")
 	update := map[string]interface{}{
 		"pe":         math.Round(pe*10000) / 10000,
@@ -197,9 +194,6 @@ func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, li
 }
 
 func UpdateTagByID(id int64, tag string) error {
-	if dbLite == nil {
-		InitDb()
-	}
 	update := map[string]interface{}{
 		"tag": tag,
 	}
