@@ -171,6 +171,24 @@
                         linkwn = "https://www.webull.com.sg/ticker/nasdaq-" + d.Name
                         linkwn2 = "https://www.webull.com.sg/ticker/nyse-" + d.Name
 
+
+                        linkwn = "";
+                        wbbasic = "https://www.webull.hk/quote/";
+                        wbbasic = "https://www.webull.com.sg/ticker/";
+                        var mic = d.Mic;
+                        if (mic == "XNYS") {
+                            linkwn = wbbasic + "nyse-" + d.Name
+                        } else if (mic == "XNCM" || mic == "XNGS" || mic == "XNMS") {
+                            linkwn = wbbasic + "nasdaq-" + d.Name
+                        } else if (mic == "XASE") {
+                            linkwn = wbbasic + "AMEX-" + d.Name
+                        } else if (mic == "ARCX") {
+                            linkwn = wbbasic + "NYSEARCA-" + d.Name
+                        } else {
+                            linkwn = wbbasic + +mic + "-" + d.Name
+                        }
+
+
                         tableBody += '<tr>' +
                             '<td><input type="checkbox" name="IDCheck" value="' + d.ID + '" class="acb"/></td>' +
                             '<td>' + d.ID + '</td>' +
@@ -198,7 +216,6 @@
                             '<a target="_blank" href="' + link + '" class="edit">X</a>' +
                             '<a target="_blank" href="' + linkbd + '" class="edit">B</a>' +
                             '<a target="_blank" href="' + linkwn + '" class="edit">W</a>' +
-                            '<a target="_blank" href="' + linkwn2 + '" class="edit">N</a>' +
                             '</td>' +
                             '</tr>'
                     }

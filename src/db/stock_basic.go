@@ -9,25 +9,27 @@ import (
 )
 
 type Sto struct {
-	ID    int64   `gorm:"column:id"`
-	Name  string  `gorm:"column:name"`
-	Mic   string  `gorm:"column:mic"`
-	Type  int     `gorm:"column:type"`
-	CHN   string  `gorm:"column:chn"`
-	Yield float64 `gorm:"column:yield"`
-	PE    float64 `gorm:"column:pe"`
-	Price float64 `gorm:"column:price"`
-	H52   float64 `gorm:"column:h52"`
-	L52   float64 `gorm:"column:l52"`
-	Hl    float64 `gorm:"column:hl"`
-	Lb    float64 `gorm:"column:liangbi"`
-	Sz    float64 `gorm:"column:shizhi"`
-	Hsl   float64 `gorm:"column:huanshoulv"`
-	Up    string  `gorm:"column:up"`
-	CjlD  float64 `gorm:"column:cjlrateday"`
-	ZCL   float64 `gorm:"column:zcrate"`
-	ZCW   float64 `gorm:"column:zcweek"`
-	TAG   float64 `gorm:"column:tag"`
+	ID     int64   `gorm:"column:id"`
+	Name   string  `gorm:"column:name"`
+	Mic    string  `gorm:"column:mic"`
+	Type   int     `gorm:"column:type"`
+	CHN    string  `gorm:"column:chn"`
+	Yield  float64 `gorm:"column:yield"`
+	PE     float64 `gorm:"column:pe"`
+	PEF    float64 `gorm:"column:pef"`
+	Price  float64 `gorm:"column:price"`
+	H52    float64 `gorm:"column:h52"`
+	L52    float64 `gorm:"column:l52"`
+	Hl     float64 `gorm:"column:hl"`
+	Lb     float64 `gorm:"column:liangbi"`
+	Sz     float64 `gorm:"column:shizhi"`
+	Hsl    float64 `gorm:"column:huanshoulv"`
+	Up     string  `gorm:"column:up"`
+	Caibao string  `gorm:"column:caibao"`
+	CjlD   float64 `gorm:"column:cjlrateday"`
+	ZCL    float64 `gorm:"column:zcrate"`
+	ZCW    float64 `gorm:"column:zcweek"`
+	TAG    int     `gorm:"column:tag"`
 }
 
 func CreateStos(stos []*Sto) error {
@@ -160,6 +162,12 @@ func Search(dto *SearchDto) ([]*Sto, error) {
 	}
 	err := db.Find(&resp).Error
 	return resp, err
+}
+
+func UpdateStoById(sto *Sto) error {
+	sto.Up = time.Now().Format("2006-01-02")
+	err := dbLite.Table("stock_basic").Where("id=?", sto.ID).Updates(sto).Error
+	return err
 }
 
 func UpdateByID(id int64, pe, yield float64, chn string, price, h52, l52, hl, liangbi, shizhi, huanshoulv, cjlrateday, zcrate, zcweek float64) error {

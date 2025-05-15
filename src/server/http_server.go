@@ -27,8 +27,9 @@ func AddServer(w http.ResponseWriter, r *http.Request) {
 	byName, _ := db.SelectStoByName(name)
 	if byName != nil {
 		sto = byName
+	} else {
+		_ = db.CreateStos([]*db.Sto{sto})
 	}
-	_ = db.CreateStos([]*db.Sto{sto})
 	stock.FlushOne(sto)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
 	_ = json.NewEncoder(w).Encode("success")
