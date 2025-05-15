@@ -137,10 +137,6 @@ func FlushServer(w http.ResponseWriter, r *http.Request) {
 	tpe := r.FormValue("type")
 	log.Printf("flush req hard:" + hard)
 	w.Header().Add("Access-Control-Allow-Origin", "*")
-	if !doing || tpe == "-1" {
-		go stock.FlushBasic(hard, tpe)
-		_ = json.NewEncoder(w).Encode("success")
-	} else {
-		_ = json.NewEncoder(w).Encode("doing")
-	}
+	go stock.FlushBasic(hard, tpe)
+	_ = json.NewEncoder(w).Encode(stock.Doing)
 }
