@@ -15,7 +15,7 @@ func Send(subject string, body string) {
 	m.SetHeader("To", to)
 	m.SetHeader("Subject", subject)
 	m.SetBody("text/plain", body)
-	d := gomail.NewDialer("smtp.163.com", 465, from, authCode)
+	d := gomail.NewDialer("smtp.qq.com", 465, from, authCode)
 	d.SSL = true
 	if err := d.DialAndSend(m); err != nil {
 		log.Printf("send email err:%s,%s", subject, err)
