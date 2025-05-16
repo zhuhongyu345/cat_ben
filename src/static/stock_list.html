@@ -167,7 +167,7 @@
                         link = "https://xueqiu.com/S/" + d.Name
                         linkbd = "https://gushitong.baidu.com/stock/" + bdType + d.Name
                         linkft = "https://www.futunn.com/stock/" + d.Name + ftType
-                        linkHistory = "./pe_history.html?name=" + d.Name+"&auto"
+                        linkHistory = "./pe_history.html?name=" + d.Name + "&auto"
                         linkwn = "https://www.webull.com.sg/ticker/nasdaq-" + d.Name
                         linkwn2 = "https://www.webull.com.sg/ticker/nyse-" + d.Name
 
@@ -188,10 +188,10 @@
                             linkwn = wbbasic + +mic + "-" + d.Name
                         }
 
-
+                        icon = hostC + "/static/icon/" + d.Name + ".png"
                         tableBody += '<tr>' +
                             '<td><input type="checkbox" name="IDCheck" value="' + d.ID + '" class="acb"/></td>' +
-                            '<td>' + d.ID + '</td>' +
+                            '<td><img  style="height: 36px;" src="' + icon + '"></td>' +
                             '<td>' + d.Name + '</td>' +
                             '<td>' + d.CHN + '</td>' +
                             '<td>' + t + '</td>' +
