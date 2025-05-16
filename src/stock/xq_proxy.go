@@ -1,6 +1,7 @@
 package stock
 
 import (
+	"cat_ben/src/chromedriver"
 	"cat_ben/src/db"
 	"cat_ben/src/pkg/bizcall"
 	"context"
@@ -109,6 +110,7 @@ func getKlineFromXQ(name string, period string, count int64) (data []*KlineData,
 	defer func() {
 		if r := recover(); r != nil {
 			log.Println("recover:", r)
+			chromedriver.GetTokenAndSave()
 			log.Println("name:", name)
 		}
 	}()
